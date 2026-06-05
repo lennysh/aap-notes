@@ -4,9 +4,10 @@ Reference material for Ansible Automation Platform role-based access control (RB
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) | **Primary document** — give this to an AI agent as its single source of truth for RBAC questions |
+| File | Audience | Purpose |
+|------|----------|---------|
+| [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) | **Humans** | Concepts, mermaid diagrams, walkthroughs, common mistakes |
+| [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) | **AI agents** | Exhaustive lookup tables, API reference, goal → role mapping |
 
 ## Using with Cursor / other agents
 
