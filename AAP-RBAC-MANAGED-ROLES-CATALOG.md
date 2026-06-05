@@ -2,7 +2,7 @@
 
 Complete reference of **built-in (managed) role definitions** and the permissions each grants, derived from local forks of `django-ansible-base`, `awx`, `eda-server`, `galaxy_ng`, and Gateway fixtures.
 
-**Related:** [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) · [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) · [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md)
+**Related:** [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) · [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) · [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](./AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md)
 
 ---
 
