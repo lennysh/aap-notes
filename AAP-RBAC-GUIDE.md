@@ -1,6 +1,6 @@
 # AAP RBAC — A Human Guide
 
-A practical guide to understanding and configuring access in **Ansible Automation Platform (AAP)**. This companion to [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) favors explanation and diagrams over lookup tables.
+A practical guide to understanding and configuring access in **Ansible Automation Platform (AAP)**. This companion to [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md) favors explanation and diagrams over lookup tables.
 
 ---
 
@@ -406,11 +406,12 @@ flowchart TD
 
 | Document | Audience |
 |----------|----------|
-| [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) | Humans — concepts, diagrams, walkthroughs |
-| [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) | Humans — full role tree from superuser to object roles |
-| [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md) | Humans & agents — every built-in role and permissions |
-| [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](./AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) | Humans — permission overlap and subset diagrams |
-| [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) | AI agents — goal lookup, API reference, decision guidance |
+| [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) | Humans — concepts, diagrams, walkthroughs |
+| [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) | Humans — single org vs orgs as teams |
+| [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) | Humans — full role tree from superuser to object roles |
+| [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) | Humans & agents — every built-in role and permissions |
+| [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) | Humans — permission overlap and subset diagrams |
+| [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md) | AI agents — goal lookup, API reference, decision guidance |
 
 Official Red Hat documentation: search for **“assembly-gw-roles”** in AAP access management docs.
 
@@ -423,4 +424,4 @@ Managed roles and permissions change between AAP releases. When upgrading, spot-
 - Access Management → Roles (managed role list)
 - `GET /api/gateway/v1/role_definitions/` on your environment
 
-Source repos used to build these notes are listed in [README.md](./README.md).
+Source repos used to build these notes are listed in [README.md](README.md).

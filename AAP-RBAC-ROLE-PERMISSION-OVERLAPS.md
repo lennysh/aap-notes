@@ -2,9 +2,9 @@
 
 Advanced diagrams showing **where managed roles share permissions**, **where one role’s permissions are a subset of another’s**, and **where the same role name merges permission sets across services**.
 
-**Prerequisites:** [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md) (exact permission lists)
+**Prerequisites:** [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) (exact permission lists)
 
-**Related:** [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md)
+**Related:** [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md)
 
 ---
 
@@ -437,7 +437,7 @@ It shares **`member_organization`** with Organization Admin but **nothing operat
 
 ## Source & maintenance
 
-Derived from [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md). Re-validate after AAP upgrades:
+Derived from [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md). Re-validate after AAP upgrades:
 
 ```http
 GET /api/gateway/v1/role_definitions/?managed=true

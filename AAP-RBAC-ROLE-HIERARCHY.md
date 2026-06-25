@@ -2,7 +2,7 @@
 
 A **breadth-first role tree**: widest access at the top, narrowest at the bottom. Use this to see how roles relate by **scope and power**, not as an inheritance chain (assigning Org Admin does not automatically grant Team Admin on every team — you assign roles separately on each object).
 
-**Related:** [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) (narrative) · [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) (lookup) · [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md) (permissions) · [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](./AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) (overlaps)
+**Related:** [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) (narrative) · [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md) (lookup) · [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) (permissions) · [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) (overlaps)
 
 ---
 

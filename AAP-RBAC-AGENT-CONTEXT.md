@@ -6,7 +6,7 @@
 >
 > **Last derived from:** Local forks of `django-ansible-base`, `awx`, `eda-server`, `galaxy_ng`, and `ansible-ui`.
 >
-> **Companion docs:** [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) · [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md)
+> **Companion docs:** [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) · [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) · [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md)
 
 ---
 
@@ -208,8 +208,8 @@ EDA org roles: `eda-server` → `create_initial_data.py` → `ORG_ROLES`. Per-re
 
 Sources: `ansible-ui/platform/access/authenticators/components/mocks/roleDefinitions.json`, `django-ansible-base/ansible_base/rbac/managed.py`.
 
-> **Full permission lists for every built-in role:** [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md)  
-> **Overlap / subset diagrams:** [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](./AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md)
+> **Full permission lists for every built-in role:** [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md)  
+> **Overlap / subset diagrams:** [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md)
 
 ### Platform Auditor (system-wide)
 
