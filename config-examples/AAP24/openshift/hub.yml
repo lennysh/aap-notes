@@ -1,24 +1,176 @@
 ---
-# Automation Hub Custom Resource
+# AutomationHub Custom Resource — exhaustive spec example
+# Derived from CRD: automationhub.ansible.com_automationhubs.yaml
+# Fields with CRD defaults are set explicitly; unset options are commented with placeholders.
 apiVersion: automationhub.ansible.com/v1beta1
 kind: AutomationHub
 metadata:
   name: example-hub
   namespace: aap
 spec:
-  replicas: 1
 
-  # Core secret references
-  db_fields_encryption_secret: example-hub-secret-key # notsecret
-  postgres_configuration_secret: hub-postgres-configuration # notsecret
+  # --- Secrets & encryption ---
+  db_fields_encryption_secret: "example-hub-secret-key" # notsecret  # Secret where the Fernet symmetric encryption key is stored
+  # sso_secret: example-value # notsecret  # Secret where Single Sign-on configuration can be found
+  # bundle_cacert_secret: example-value # notsecret  # Secret where the trusted Certificate Authority Bundle is stored
+  # container_token_secret: example-value # notsecret  # Secret where the container token certificates are stored
+  # signing_secret: example-value # notsecret  # Secret where the signing certificates are stored
+  # signing_scripts_configmap: example-value  # ConfigMap where the signing scripts are stored
+  # admin_password_secret: example-value # notsecret  # Secret where the administrator password can be found
 
-  # Optional: private Hub + Red Hat SSO / Keycloak (uncomment secret in secrets-hub.yml + field below)
-  # sso_secret: automation-hub-sso # notsecret
+  # --- Database (external Postgres) ---
+  postgres_configuration_secret: "hub-postgres-configuration" # notsecret  # Secret where the database configuration can be found
+  # postgres_migrant_configuration_secret: example-value # notsecret  # Secret where the old database configuration can be found for data migration
+  # postgres_data_path: example-value  # Path where the PostgreSQL data are located
+  # postgres_extra_args: []
+  # postgres_host_auth_method: example-value  # The method to be used for database host authentication
+  # postgres_initdb_args: example-value  # The arguments to be passed to initialize the database
+  # postgres_image: example-value  # Registry path to the PostgreSQL container to use
+  # postgres_keep_pvc_after_upgrade: false  # Specify whether or not to keep the old PVC after PostgreSQL upgrades
+  # postgres_label_selector: example-value  # Label selector used to identify postgres pod for executing migration
+  # postgres_selector: example-value  # nodeSelector for the Postgres pods
+  # postgres_storage_class: example-value  # Storage class to use for the PostgreSQL PVC
+  # postgres_tolerations: example-value  # node tolerations for the Postgres pods
+  postgres_resource_requirements:
+    limits:
+      cpu: "1000m"  # default
+      memory: "8Gi"  # default
+    requests:
+      cpu: "500m"  # default
+      memory: "2Gi"  # default
+  postgres_storage_requirements:
+    limits:
+      storage: "50Gi"  # default
+    requests:
+      storage: "8Gi"  # default
+  force_drop_db: false  # default; Force drop the database before restoring. USE WITH CAUTION!
 
-  # Object storage — enable ONE backend in secrets-hub.yml and the matching field here
-  object_storage_s3_secret: hub-s3-storage-secret # notsecret
-  # object_storage_azure_secret: hub-azure-storage-secret # notsecret
+  # --- Object / file storage ---
+  storage_type: "S3"  # Configuration for the storage type to be utilized
+  object_storage_s3_secret: "hub-s3-storage-secret" # notsecret  # The secret for S3 compliant object storage configuration.
+  # object_storage_azure_secret: example-value # notsecret  # The secret for Azure blob storage configuration.
+  file_storage_access_mode: "ReadWriteMany"  # default; The file storage access mode.; enum: ReadWriteMany, ReadWriteOnce
+  file_storage_size: "100Gi"  # default; The size of the file storage; for example 100Gi.
+  # file_storage_storage_class: example-value  # Storage class to use for the file persistentVolumeClaim
 
-  ingress_type: Route
-  route_tls_termination_mechanism: Edge
-  route_tls_secret: hub-route-tls-secret # notsecret
+  # --- Container images ---
+  # image: example-value  # The image name (repo name) for the pulp image.
+  # image_version: example-value  # The image version for the pulp image.
+  # image_web: example-value  # The image name (repo name) for the pulp webserver image.
+  # image_web_version: example-value  # The image version for the pulp webserver image.
+  image_pull_policy: "IfNotPresent"  # default; Image pull policy for container image; enum: IfNotPresent, Always, Never
+  # image_pull_secret: example-value  # The image pull secret (deprecated. Use image_pull_secrets instead)
+  # image_pull_secrets: []  # The image pull secrets
+  # redis_image: example-value  # The image name for the redis image.
+
+  # --- Ingress / Route / LoadBalancer ---
+  ingress_type: "Route"  # default; The ingress type to use to reach the deployed instance; enum: none, Ingress, ingress, Route, route, LoadBalancer
+  # ingress_annotations: example-value  # Annotations to add to the ingress
+  # ingress_tls_secret: example-value  # Secret where the ingress TLS secret can be found
+  # route_host: example-value  # The DNS to use to points to the instance
+  route_tls_secret: "hub-route-tls-secret" # notsecret  # Secret where the TLS related credentials are stored
+  route_tls_termination_mechanism: "Edge"  # default; The secure TLS termination mechanism to use; enum: Edge, edge, Passthrough, passthrough
+  loadbalancer_port: 80  # default; Port to use for the loadbalancer
+  loadbalancer_protocol: "http"  # default; Protocol to use for the loadbalancer; enum: http, https
+  # nodeport_port: example-value  # Provide requested port value
+  # hostname: example-value  # The hostname of the instance
+  # public_base_url: example-value  # Public base URL
+
+  # --- Gunicorn / proxy timeouts ---
+  gunicorn_api_workers: 2  # default; The number of gunicorn workers to use for the api.
+  gunicorn_content_workers: 2  # default; The number of gunicorn workers to use for the content.
+  gunicorn_timeout: 90  # default; The timeout for the gunicorn process.
+  haproxy_timeout: "180s"  # default; HAProxy timeout
+  nginx_client_max_body_size: "10m"  # default; NGINX client max body size
+  nginx_proxy_connect_timeout: "120s"  # default; NGINX proxy connect timeout
+  nginx_proxy_read_timeout: "120s"  # default; NGINX proxy read timeout
+  nginx_proxy_send_timeout: "120s"  # default; NGINX proxy send timeout
+
+  # --- API deployment ---
+  api:
+    log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    replicas: 1  # default; The number of replicas for the deployment.
+    resource_requirements:
+      # limits: {}
+      # requests: {}
+    strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+  # --- Content deployment ---
+  content:
+    log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    replicas: 2  # default; The number of replicas for the deployment.
+    resource_requirements:
+      # limits: {}
+      # requests: {}
+    strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+  # --- Redis deployment ---
+  redis:
+    log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    replicas: 1  # default; (Deprecated) The number of replicas for redis is 1
+    resource_requirements:
+      # limits: {}
+      # requests: {}
+    strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+  # redis_storage_class: example-value  # Storage class to use for the Redis PVC
+  # redis_storage_size: example-value  # Storage size to use for the Redis PVC
+  redis_resource_requirements:
+    limits:
+      # cpu: example-value
+      # memory: example-value
+      # storage: example-value
+    requests:
+      # cpu: example-value
+      # memory: example-value
+      # storage: example-value
+
+  # --- Resource manager deployment ---
+  resource_manager:
+    replicas: 1  # default; The number of replicas for the deployment.
+    resource_requirements:
+      # limits: {}
+      # requests: {}
+    strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+  # --- Web deployment ---
+  web:
+    replicas: 1  # default; The number of replicas for the deployment.
+    resource_requirements:
+      # limits: {}
+      # requests: {}
+    strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+  # --- Worker deployment ---
+  worker:
+    replicas: 2  # default; The number of replicas for the deployment.
+    resource_requirements:
+      # limits: {}
+      # requests: {}
+    strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+  # --- Operator behavior ---
+  no_log: true  # default; Configure no_log for no_log tasks
+  # idle_deployment: false  # Scale down deployments to put Galaxy into an idle state
+  # deployment_type: example-value  # Name of the deployment type
+
+  # --- Scheduling ---
+  # node_selector: example-value  # nodeSelector for the Pulp pods
+  # tolerations: example-value  # node tolerations for the Pulp pods
+  # topology_spread_constraints: example-value  # topology rule(s) for the pods
+  # affinity: {}
+  # service_annotations: example-value  # Annotations to add to the service
+
+  # --- Extra configuration ---
+  # pulp_settings: {}

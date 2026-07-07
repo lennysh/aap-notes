@@ -6,21 +6,26 @@ These are reference examples — replace placeholder values, trim secrets you do
 
 All manifests target the `aap` namespace. Create it (or change `namespace` everywhere) before deploying. Do **not** deploy AAP into the `default` namespace.
 
+The `controller.yml`, `hub.yml`, and `eda.yml` CR files are exhaustive spec references (every CRD field documented). Regenerate them from operator CRD dumps with [generate-aap-cr-examples](https://github.com/lennysh/openshift-playground/tree/main/generate-aap-cr-examples) in openshift-playground.
+
 ## Files
 
 | File | Purpose |
 |------|---------|
-| [secrets-controller.yml](secrets-controller.yml) | Controller secrets — Postgres, secret key, EE pull creds, route TLS; optional LDAP/bundle CA commented out |
-| [secrets-hub.yml](secrets-hub.yml) | Hub secrets — Postgres, encryption key, route TLS, S3 storage; optional SSO/Azure commented out |
-| [controller.yml](controller.yml) | `AutomationController` CR referencing controller secrets |
-| [hub.yml](hub.yml) | `AutomationHub` CR referencing hub secrets |
+| [secrets-controller.yml](secrets-controller.yml) | All Controller secret examples (active + optional commented) |
+| [secrets-hub.yml](secrets-hub.yml) | All Hub secret examples (active + optional commented) |
+| [secrets-eda.yml](secrets-eda.yml) | All EDA secret examples (active + optional commented) |
+| [configmaps-hub.yml](configmaps-hub.yml) | Optional Hub signing scripts ConfigMap (pairs with Hub signing secret) |
+| [controller.yml](controller.yml) | `AutomationController` CR — full spec reference |
+| [hub.yml](hub.yml) | `AutomationHub` CR — full spec reference |
+| [eda.yml](eda.yml) | `EDA` CR — full spec reference |
 
 ## Deployment order
 
 1. Create the namespace (if it does not exist).
 2. Enable the PostgreSQL `hstore` extension on the Hub database (required for external Postgres — see below).
 3. Replace TLS placeholders or create TLS secrets with real certificates.
-4. Apply secret manifests so every secret referenced in the CRs exists first.
+4. Apply secret manifests (and optional ConfigMaps) so every secret referenced in the CRs exists first.
 5. Apply the Custom Resources.
 
 ```shell
@@ -29,53 +34,143 @@ oc create namespace aap
 # Optional: create TLS secrets from real cert/key files instead of editing YAML placeholders
 # oc create secret tls controller-route-tls-secret --cert=controller.crt --key=controller.key -n aap
 # oc create secret tls hub-route-tls-secret --cert=hub.crt --key=hub.key -n aap
+# oc create secret tls eda-route-tls-secret --cert=eda.crt --key=eda.key -n aap
 
 # Stage secrets before the operator reconciles CRs
 oc apply -f secrets-controller.yml
 oc apply -f secrets-hub.yml
+oc apply -f secrets-eda.yml
+# oc apply -f configmaps-hub.yml   # when enabling Hub content signing
 
 # Deploy component CRs (secret names in spec must match the secrets above)
 oc apply -f controller.yml
 oc apply -f hub.yml
+oc apply -f eda.yml
 ```
+
+## Secret catalog (AAP 2.4 CRDs)
+
+Every `*_secret` field in the Controller, Hub, and EDA CRDs is listed below. **Active** secrets are applied by default; **optional** blocks are commented in the secret files and CRs.
+
+### AutomationController
+
+| CRD field | Secret name (example) | secrets-controller.yml | Status |
+|-----------|----------------------|------------------------|--------|
+| `secret_key_secret` | `example-controller-secret-key` | §3 | Active |
+| `postgres_configuration_secret` | `controller-postgres-configuration` | §1 | Active |
+| `ee_pull_credentials_secret` | `ee-pull-secret` | §2 | Active |
+| `admin_password_secret` | `example-controller-admin-password` | §4 | Active |
+| `route_tls_secret` | `controller-route-tls-secret` | §5 | Active |
+| `bundle_cacert_secret` | `bundle-ca-secret` | §6 | Optional |
+| `ldap_cacert_secret` | `ldap-ca-secret` | §7 | Optional |
+| `ldap_password_secret` | `ldap-password-secret` | §8 | Optional |
+| `broadcast_websocket_secret` | `example-controller-broadcast-websocket` | §9 | Optional (operator auto-generates) |
+| `metrics_utility_secret` | `controller-metrics-utility-secret` | §10 | Optional (requires `metrics_utility_enabled: true`) |
+| `image_pull_secrets` | `aap-image-pull-secret` | §11 | Optional |
+| `ingress_tls_secret` | `controller-ingress-tls-secret` | §12 | Optional (use when `ingress_type: Ingress`) |
+| `old_postgres_configuration_secret` | `example-controller-old-postgres-configuration` | §13 | Optional (migration only) |
+| `image_pull_secret` | — | — | Deprecated; use `image_pull_secrets` |
+
+**Related (not standalone secrets):** `extra_settings_files.secrets` (Controller 2.5+) references existing Secret names from the CR — no new secret shape.
+
+### AutomationHub
+
+| CRD field | Secret / ConfigMap name (example) | File | Status |
+|-----------|-----------------------------------|------|--------|
+| `db_fields_encryption_secret` | `example-hub-secret-key` | secrets-hub §2 | Active |
+| `postgres_configuration_secret` | `hub-postgres-configuration` | secrets-hub §1 | Active |
+| `object_storage_s3_secret` | `hub-s3-storage-secret` | secrets-hub §4 | Active |
+| `route_tls_secret` | `hub-route-tls-secret` | secrets-hub §3 | Active |
+| `admin_password_secret` | `example-hub-admin-password` | secrets-hub §5 | Optional |
+| `sso_secret` | `automation-hub-sso` | secrets-hub §6 | Optional |
+| `bundle_cacert_secret` | `hub-bundle-ca-secret` | secrets-hub §7 | Optional |
+| `signing_secret` | `hub-signing-secret` | secrets-hub §8 | Optional |
+| `signing_scripts_configmap` | `hub-signing-scripts` | configmaps-hub §1 | Optional (ConfigMap) |
+| `container_token_secret` | `hub-container-token-secret` | secrets-hub §9 | Optional |
+| `image_pull_secrets` | `hub-image-pull-secret` | secrets-hub §10 | Optional |
+| `ingress_tls_secret` | `hub-ingress-tls-secret` | secrets-hub §11 | Optional |
+| `object_storage_azure_secret` | `hub-azure-storage-secret` | secrets-hub §12 | Optional (disable S3) |
+| `postgres_migrant_configuration_secret` | `example-hub-old-postgres-configuration` | secrets-hub §13 | Optional (migration) |
+| `image_pull_secret` | — | — | Deprecated; use `image_pull_secrets` |
+
+### EDA
+
+| CRD field | Secret name (example) | secrets-eda.yml | Status |
+|-----------|----------------------|-----------------|--------|
+| `db_fields_encryption_secret` | `example-eda-secret-key` | §2 | Active |
+| `database.database_secret` | `eda-postgres-configuration` | §1 | Active |
+| `admin_password_secret` | `example-eda-admin-password` | §3 | Active |
+| `route_tls_secret` | `eda-route-tls-secret` | §4 | Active |
+| `bundle_cacert_secret` | `eda-bundle-ca-secret` | §5 | Optional |
+| `image_pull_secrets` | `eda-image-pull-secret` | §6 | Optional |
+| `ingress_tls_secret` | `eda-ingress-tls-secret` | §7 | Optional |
+| `redis.redis_secret` | `eda-redis-configuration` | §8 | Optional (CRD: 2.5+ only; deprecated in later operators) |
+
+## Secret data key reference
+
+| Component | CRD field | Required secret data keys |
+|-----------|-----------|---------------------------|
+| Controller | `secret_key_secret` | `secret_key` |
+| Controller | `postgres_configuration_secret` | `host`, `port`, `database`, `username`, `password`, `sslmode`, `type` |
+| Controller | `ee_pull_credentials_secret` | `username`, `password`, `url` |
+| Controller | `admin_password_secret` | `password` |
+| Controller | `broadcast_websocket_secret` | `broadcast_websocket_secret` |
+| Controller | `ldap_cacert_secret` | `ldap-ca.crt` |
+| Controller | `ldap_password_secret` | `password` |
+| Controller | `bundle_cacert_secret` | `bundle-ca.crt` |
+| Controller | `route_tls_secret` / `ingress_tls_secret` | `tls.crt`, `tls.key` (`kubernetes.io/tls`) |
+| Controller | `image_pull_secrets` | `.dockerconfigjson` (`kubernetes.io/dockerconfigjson`) |
+| Hub | `db_fields_encryption_secret` | `database_fields.symmetric.key` |
+| Hub | `postgres_configuration_secret` | same as Controller Postgres |
+| Hub | `object_storage_s3_secret` | `s3-access-key-id`, `s3-secret-access-key`, `s3-bucket-name`, `s3-region` |
+| Hub | `object_storage_azure_secret` | `azure-account-name`, `azure-account-key`, `azure-container`, etc. |
+| Hub | `sso_secret` | Keycloak fields (`keycloak_host`, `social_auth_keycloak_secret`, …) |
+| Hub | `signing_secret` | `signing_service.gpg` |
+| Hub | `container_token_secret` | `container_auth_private_key.pem`, `container_auth_public_key.pem` |
+| Hub | `admin_password_secret` | `password` |
+| EDA | `db_fields_encryption_secret` | `secret_key` |
+| EDA | `database.database_secret` | same as Controller Postgres |
+| EDA | `admin_password_secret` | `password` |
 
 ## How this fits together
 
-The AAP 2.4 operator uses component-level Custom Resources (`AutomationController`, `AutomationHub`, and others) rather than a single monolithic deployment manifest. Each CR's `spec` references Kubernetes Secret names; the operator reads those secrets at reconcile time.
+The AAP 2.4 operator uses component-level Custom Resources rather than a single monolithic deployment manifest. Each CR's `spec` references Kubernetes Secret names; the operator reads those secrets at reconcile time.
 
-Both components use **OpenShift Routes** (`ingress_type: Route`) with separate TLS secrets. If you use one wildcard certificate for both hostnames, you can point both CRs at the same secret name or duplicate the PEM into `controller-route-tls-secret` and `hub-route-tls-secret`.
-
-**Controller** ([controller.yml](controller.yml)) wires Postgres, the Django `secret_key`, execution-environment registry pull credentials, and route TLS. Optional LDAP and custom CA bundle secrets are commented out in both the secret file and CR — uncomment matching pairs when needed.
-
-**Hub** ([hub.yml](hub.yml)) wires Postgres, `db_fields_encryption_secret` (database field encryption), S3 object storage, and route TLS. Optional SSO (Keycloak) and Azure storage are commented out — uncomment the matching secret block and CR field for your environment.
+All three components default to **OpenShift Routes** (`ingress_type: Route`) with separate TLS secrets. Switch to `ingress_type: Ingress` and use the `ingress_tls_secret` examples in the secret files if deploying on vanilla Kubernetes.
 
 ## External Postgres
 
-When using an external database, the `postgres_configuration_secret` must use this key mapping: `host`, `port`, `database`, `username`, `password`, `sslmode`, `type`. Avoid single quotes (`'`), double quotes (`"`), and backslashes (`\`) in the password value to prevent restore failures.
+When using an external database, Postgres secrets must use: `host`, `port`, `database`, `username`, `password`, `sslmode`, `type`. Avoid single quotes (`'`), double quotes (`"`), and backslashes (`\`) in the password value.
 
 ### Hub requires `hstore`
-
-For external Hub Postgres, enable the `hstore` extension **before** installing Hub (AAP 2.4 migration scripts depend on it):
 
 ```shell
 psql -d automationhub -c "CREATE EXTENSION IF NOT EXISTS hstore;"
 ```
 
-Installation fails during database migration if `hstore` is missing.
+## Regenerating CR examples
 
-## Optional features
+```shell
+cd /path/to/openshift-playground/dump-aap-crds
+./dump-aap-crds.sh --versions 2.4
 
-| Feature | Secret file | CR field | Notes |
-|---------|-------------|----------|-------|
-| Custom CA bundle | `secrets-controller.yml` §6 | `bundle_cacert_secret` | Outbound TLS trust |
-| LDAP | `secrets-controller.yml` §7–8 | `ldap_cacert_secret`, `ldap_password_secret` | CA data key must be `ldap-ca.crt` |
-| Hub SSO / Keycloak | `secrets-hub.yml` §5 | `sso_secret` | Private Hub + RH SSO only |
-| Azure storage | `secrets-hub.yml` §6 | `object_storage_azure_secret` | Disable S3 secret/field when using Azure |
+cd ../generate-aap-cr-examples
+./generate-aap-cr-examples.sh \
+  --crd-dir /path/to/aap-notes/config-examples/.crd-dumps/2.4 \
+  --output-dir /path/to/aap-notes/config-examples/AAP24/openshift
+```
+
+Review `OVERRIDES` and `COMMENT_PATHS` in the generator when secret naming changes.
+
+## Other 2.4 CR kinds (not covered here)
+
+Your CRD dump also includes **AnsibleLightspeed** and **Tower resource CRs** (`JobTemplate`, `AnsibleJob`, etc.) with their own secret fields. Those are out of scope for this folder; see the 2.4 CRD dumps under `config-examples/.crd-dumps/2.4/` for schema reference.
 
 ## Constraints and warnings
 
-- **Admin password** — If `admin_password_secret` is omitted on `AutomationController`, the operator looks for `<resourcename>-admin-password` (e.g. `example-controller-admin-password`) or auto-generates one.
-- **Secret keys** — Controller uses `secret_key_secret` → secret data key `secret_key`. Hub uses `db_fields_encryption_secret` → secret data key `database_fields.symmetric.key`. Use stable keys in production; the operator generates new ones if omitted, which breaks migration and credential decryption.
-- **TLS secrets** — Replace PEM placeholders in the YAML or create secrets with `oc create secret tls` before applying CRs.
-- **Hub storage** — Deploy S3 **or** Azure, not both. Comment out S3 in [secrets-hub.yml](secrets-hub.yml) and [hub.yml](hub.yml) when switching to Azure.
-- **EE pull credentials** — `ee_pull_credentials_secret` supplies `username`, `password`, and `url` for authenticated registries (e.g. `registry.redhat.io`).
+- **Operator-generated secrets** — If encryption keys, admin passwords, or websocket secrets are omitted, the operator creates them. Pre-provision secrets for GitOps and migration.
+- **Hub storage** — S3 **or** Azure, not both.
+- **Hub signing** — Requires both `signing_secret` and `signing_scripts_configmap`.
+- **EDA Redis** — Present in the 2.4 CRD but marked effective for 2.5+; later EDA operators use dispatcherd (PostgreSQL) instead of Redis.
+- **EE pull credentials** — `ee_pull_credentials_secret` supplies registry auth for execution environments.
+- **EDA → Controller** — Set `automation_server_url` to a URL reachable from EDA pods.
