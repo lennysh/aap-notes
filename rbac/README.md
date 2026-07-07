@@ -1,0 +1,30 @@
+# AAP RBAC Notes
+
+Reference material for Ansible Automation Platform role-based access control (RBAC), derived from local forks of the upstream repos.
+
+## Files
+
+| File | Audience | Purpose |
+|------|----------|---------|
+| [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) | **Humans** | Concepts, mermaid diagrams, walkthroughs, common mistakes |
+| [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) | **Humans** | Single org + teams vs orgs as teams — decision guide |
+| [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) | **Humans** | Full role tree (text + mermaid) from superuser down to object roles |
+| [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) | **Humans & agents** | Every built-in role and its permissions, by service |
+| [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) | **Humans** | Advanced mermaid diagrams — shared permissions, subsets, unions |
+| [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md) | **AI agents** | Goal → role lookup, API reference, decision guidance |
+
+## Using with Cursor / other agents
+
+1. Add this repo (or the `rbac/` folder) to your workspace, or `@`-mention `rbac/AAP-RBAC-AGENT-CONTEXT.md` from the repo root.
+2. Ask goal-oriented questions, e.g. *"What role does user Jane need to add people to the Ops team?"*
+3. The agent should answer with: role name, assignment scope (object), required permissions, and what **not** to assign.
+
+## Source repos (local forks)
+
+- `django-ansible-base-fork` — authoritative RBAC library
+- `awx-fork` — Controller managed roles
+- `eda-server-fork` — EDA org and resource roles
+- `galaxy_ng-fork` — Hub / galaxy roles
+- `ansible-ui-fork` — UI labels and Gateway fixtures (display only)
+
+Re-derive these documents when managed roles change upstream.

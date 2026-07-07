@@ -1,30 +1,24 @@
-# AAP RBAC Notes
+# AAP Notes
 
-Reference material for Ansible Automation Platform role-based access control (RBAC), derived from local forks of the upstream repos.
+Personal reference material for [Ansible Automation Platform (AAP)](https://www.redhat.com/en/technologies/management/ansible). This repo was formerly **aap-rbac-notes**; RBAC content now lives under `rbac/`, and additional topics are organized in their own folders as they are added.
 
-## Files
+## Contents
 
-| File | Audience | Purpose |
-|------|----------|---------|
-| [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) | **Humans** | Concepts, mermaid diagrams, walkthroughs, common mistakes |
-| [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) | **Humans** | Single org + teams vs orgs as teams — decision guide |
-| [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) | **Humans** | Full role tree (text + mermaid) from superuser down to object roles |
-| [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) | **Humans & agents** | Every built-in role and its permissions, by service |
-| [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) | **Humans** | Advanced mermaid diagrams — shared permissions, subsets, unions |
-| [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md) | **AI agents** | Goal → role lookup, API reference, decision guidance |
+| Folder | Description |
+|--------|-------------|
+| [`rbac/`](rbac/) | RBAC concepts, role catalogs, hierarchy diagrams, organizational design guidance, and agent-oriented lookup material |
+| [`config-examples/`](config-examples/) | Example deployment manifests and related notes (not production-ready templates) |
+
+## Quick links
+
+- **RBAC overview and file index** — [`rbac/README.md`](rbac/README.md)
+- **OpenShift AAP 2.4 operator examples** — [`config-examples/AAP24/openshift/README.md`](config-examples/AAP24/openshift/README.md)
 
 ## Using with Cursor / other agents
 
-1. Add this folder to your workspace, or `@`-mention `AAP-RBAC-AGENT-CONTEXT.md` in chat.
-2. Ask goal-oriented questions, e.g. *"What role does user Jane need to add people to the Ops team?"*
-3. The agent should answer with: role name, assignment scope (object), required permissions, and what **not** to assign.
+Add this repo to your workspace, then `@`-mention the doc that matches your question:
 
-## Source repos (local forks)
+- RBAC goals and role lookup → `rbac/AAP-RBAC-AGENT-CONTEXT.md`
+- Deployment secrets and CR wiring → `config-examples/AAP24/openshift/`
 
-- `django-ansible-base-fork` — authoritative RBAC library
-- `awx-fork` — Controller managed roles
-- `eda-server-fork` — EDA org and resource roles
-- `galaxy_ng-fork` — Hub / galaxy roles
-- `ansible-ui-fork` — UI labels and Gateway fixtures (display only)
-
-Re-derive this document when managed roles change upstream.
+Most material under `rbac/` was derived from local forks of upstream AAP component repos; see [`rbac/README.md`](rbac/README.md) for the source list.

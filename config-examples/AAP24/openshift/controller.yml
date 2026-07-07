@@ -1,0 +1,26 @@
+---
+# Automation Controller Custom Resource
+apiVersion: automationcontroller.ansible.com/v1beta1
+kind: AutomationController
+metadata:
+  name: example-controller
+  namespace: aap
+spec:
+  replicas: 1
+
+  # Core secret references
+  secret_key_secret: example-controller-secret-key # notsecret
+  postgres_configuration_secret: controller-postgres-configuration # notsecret
+  ee_pull_credentials_secret: ee-pull-secret # notsecret
+
+  # Optional: custom CA bundle for outbound TLS trust (uncomment secret + CR field)
+  # bundle_cacert_secret: bundle-ca-secret # notsecret
+
+  # Optional: LDAP integration (uncomment secrets in secrets-controller.yml + fields below)
+  # ldap_cacert_secret: ldap-ca-secret # notsecret
+  # ldap_password_secret: ldap-password-secret # notsecret
+
+  # OpenShift Route (preferred on OCP; use ingress_type: Ingress + ingress_tls_secret for vanilla K8s)
+  ingress_type: Route
+  route_tls_termination_mechanism: Edge
+  route_tls_secret: controller-route-tls-secret # notsecret
