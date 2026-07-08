@@ -1,0 +1,10 @@
+{
+  // Treat all YAML as plain YAML (OpenShift/AAP config, secrets templates, etc.)
+  // instead of Ansible. Playbooks folders are the exception below.
+  "files.associations": {
+    "*.yml": "yaml",
+    "*.yaml": "yaml",
+    "**/playbooks/**/*.yml": "ansible",
+    "**/playbooks/**/*.yaml": "ansible"
+  }
+}
