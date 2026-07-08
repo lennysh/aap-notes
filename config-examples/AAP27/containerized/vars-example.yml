@@ -1,5 +1,5 @@
 ---
-# AAP 2.6 optional variables — YAML-only (lists and dictionaries)
+# AAP 2.7 optional variables — YAML-only (lists and dictionaries)
 #
 # Scalar options belong in the inventory file (see inventory-example or
 # inventory-growth-example). This file covers complex types that do not
@@ -10,7 +10,7 @@
 #   2. Uncomment and edit the variables you need
 #   3. Run: ansible-playbook -i inventory ansible.containerized_installer.install -e @vars.yml
 #
-# Regenerate from catalog: python3 scripts/build_inventory.py --version 2.6
+# Regenerate from catalog: python3 scripts/build_inventory.py --version 2.7
 
 
 # Common / installer-wide

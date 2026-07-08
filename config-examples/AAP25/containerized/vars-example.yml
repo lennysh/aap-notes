@@ -1,5 +1,5 @@
 ---
-# AAP 2.6 optional variables — YAML-only (lists and dictionaries)
+# AAP 2.5 optional variables — YAML-only (lists and dictionaries)
 #
 # Scalar options belong in the inventory file (see inventory-example or
 # inventory-growth-example). This file covers complex types that do not
@@ -10,7 +10,7 @@
 #   2. Uncomment and edit the variables you need
 #   3. Run: ansible-playbook -i inventory ansible.containerized_installer.install -e @vars.yml
 #
-# Regenerate from catalog: python3 scripts/build_inventory.py --version 2.6
+# Regenerate from catalog: python3 scripts/build_inventory.py --version 2.5
 
 
 # Common / installer-wide
@@ -207,37 +207,3 @@
 
 # Lightspeed Watson Code Assistant (WCA)
 # -----------------------------------------------------
-
-# Ansible MCP Server
-# -----------------------------------------------------
-
-# MCP Server nginx SSL protocols; list
-# mcp_nginx_https_protocols:
-#   - TLSv1.2
-#   - TLSv1.3
-
-# Custom MCP Server nginx headers; list
-# mcp_nginx_user_headers:
-#   - 'X-Custom-Header "value"'
-
-# Extra MCP Server settings; list
-# mcp_extra_settings:
-#   - setting: OAUTH2_PROVIDER['ACCESS_TOKEN_EXPIRE_SECONDS']
-#     value: true
-
-# Automation Metrics Service (AAP 2.6+)
-# -----------------------------------------------------
-
-# Extra Metrics Service settings; list
-# automationmetrics_extra_settings:
-#   - setting: SOME_SETTING
-#     value: true
-
-# Metrics Service nginx SSL protocols; list
-# automationmetrics_nginx_https_protocols:
-#   - TLSv1.2
-#   - TLSv1.3
-
-# Custom Metrics Service nginx headers; list
-# automationmetrics_nginx_user_headers:
-#   - 'X-Custom-Header "value"'

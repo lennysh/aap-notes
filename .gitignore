@@ -1,1 +1,3 @@
 .ansible/
+__pycache__/
+*.py[cod]

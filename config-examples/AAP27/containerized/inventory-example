@@ -1,110 +1,131 @@
-# This is the AAP installer inventory file intended for the Container growth deployment topology.
-# This inventory file expects to be run from the host where AAP will be installed.
-# Please consult the Ansible Automation Platform product documentation about this topology's tested hardware configuration.
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/tested_deployment_models/container-topologies
-#
+# This is the AAP enterprise installer inventory file
 # Please consult the docs if you're unsure what to add
 # For all optional variables please consult the included README.md
-# or the Ansible Automation Platform documentation:
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation
+# or the Red Hat documentation:
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation
 
-# ENABLED lines below match the upstream AAP 2.6 inventory-growth starter.
+# ENABLED lines below match the upstream AAP 2.7 starter inventory.
 # All other supported variables are listed commented out for reference.
 
 # This section is for your AAP Gateway host(s)
 # -----------------------------------------------------
 [automationgateway]
-aap.example.org
+gateway1.example.org
+gateway2.example.org
 
 # This section is for your AAP Controller host(s)
+# Optional host var: receptor_type=control or hybrid (default receptor role on controller)
 # -----------------------------------------------------
 [automationcontroller]
-aap.example.org
+controller1.example.org
+controller2.example.org
+
+# This section is for your AAP Execution host(s)
+# Host var receptor_type=hop marks a hop node; omit for execution nodes
+# Optional host vars: receptor_protocol=tcp|udp
+# -----------------------------------------------------
+[execution_nodes]
+hop1.example.org receptor_type='hop'
+exec1.example.org
+exec2.example.org
 
 # This section is for your AAP Automation Hub host(s)
 # -----------------------------------------------------
 [automationhub]
-aap.example.org
+hub1.example.org
+hub2.example.org
 
 # This section is for your AAP EDA Controller host(s)
-# Optional host var: eda_type=hybrid|api|worker|event-stream
+# Optional host var per host: eda_type=hybrid|api|worker|event-stream
 # -----------------------------------------------------
 [automationeda]
-aap.example.org
+eda1.example.org
+eda2.example.org
 
 # This section is for your AAP Lightspeed host(s)
 # -----------------------------------------------------
 # [ansiblelightspeed]
-# aap.example.org
+# lightspeed1.example.org
+# lightspeed2.example.org
 
 # This section is for your Ansible MCP Server host(s)
 # -----------------------------------------------------
 # [ansiblemcp]
-# aap.example.org
+# mcpserver1.example.org
 
-# Automation Metrics Service (AAP 2.6+); requires [automationgateway]
+# Automation Metrics Service (required when [automationcontroller] is deployed)
 # -----------------------------------------------------
-# [automationmetrics]
-# aap.example.org
+[automationmetrics]
+metrics1.example.org
 
-# Execution nodes — not used in growth/all-in-one topology
+# Managed PostgreSQL — not used in enterprise/external-DB topology
 # -----------------------------------------------------
-# [execution_nodes]
-# aap.example.org
+# [database]
+# db1.example.org
 
-# This section is for the AAP database
-# -----------------------------------------------------
-[database]
-aap.example.org
-
-# Redis cluster group — not used when redis_mode=standalone (growth default)
-# -----------------------------------------------------
-# [redis]
-# aap.example.org
+[redis]
+gateway1.example.org
+gateway2.example.org
+hub1.example.org
+hub2.example.org
+eda1.example.org
+eda2.example.org
 
 [all:vars]
 
-# Ansible
-ansible_connection=local
-
 # Common variables
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#general-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#general-variables
 # -----------------------------------------------------
-postgresql_admin_username=postgres
+postgresql_admin_username=<set your own>
 postgresql_admin_password=<set your own>
 registry_username=<your RHN username>
 registry_password=<your RHN password>
-redis_mode=standalone
 
 # AAP Gateway
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#platform-gateway-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#platform-gateway-variables
 # -----------------------------------------------------
 gateway_admin_password=<set your own>
-gateway_pg_host=aap.example.org
+gateway_pg_host=externaldb.example.org
+gateway_pg_database=<set your own>
+gateway_pg_username=<set your own>
 gateway_pg_password=<set your own>
 
 # AAP Controller
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#controller-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#controller-variables
 # -----------------------------------------------------
 controller_admin_password=<set your own>
-controller_pg_host=aap.example.org
+controller_pg_host=externaldb.example.org
+controller_pg_database=<set your own>
+controller_pg_username=<set your own>
 controller_pg_password=<set your own>
-controller_percent_memory_capacity=0.5
 
 # AAP Automation Hub
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#hub-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#hub-variables
 # -----------------------------------------------------
 hub_admin_password=<set your own>
-hub_pg_host=aap.example.org
+hub_pg_host=externaldb.example.org
+hub_pg_database=<set your own>
+hub_pg_username=<set your own>
 hub_pg_password=<set your own>
-hub_seed_collections=false
 
 # AAP EDA Controller
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#event-driven-ansible-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#event-driven-ansible-variables
 # -----------------------------------------------------
 eda_admin_password=<set your own>
-eda_pg_host=aap.example.org
+eda_pg_host=externaldb.example.org
+eda_pg_database=<set your own>
+eda_pg_username=<set your own>
 eda_pg_password=<set your own>
+
+# Automation Metrics Service
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#automation-metrics-service-variables
+# -----------------------------------------------------
+automationmetrics_pg_host=externaldb.example.org
+automationmetrics_pg_database=<set your own>
+automationmetrics_pg_username=<set your own>
+automationmetrics_pg_password=<set your own>
+automationmetrics_controller_read_pg_host=externaldb.example.org
+automationmetrics_controller_read_pg_password=<set your own>
 
 # Optional variables — uncomment and customize as needed
 # Complex list/dictionary variables are documented here; see vars-example.yml
@@ -127,7 +148,7 @@ eda_pg_password=<set your own>
 # feature_flags=  # Dictionary of feature flags (keys must start with feature_, values boolean); see vars-example.yml
 # images_tmp_dir=/tmp  # Directory to extract bundled container images during offline install
 # registry_auth=true  # Authenticate to the container registry (disable for open registries)
-# registry_ns_aap=ansible-automation-platform-26  # Registry namespace for AAP component images
+# registry_ns_aap=ansible-automation-platform-27  # Registry namespace for AAP component images
 # registry_ns_aap_tp=ansible-automation-platform-tech-preview  # Registry namespace for AAP tech-preview images
 # registry_ns_rhel=rhel9  # Registry namespace for RHEL base images
 # registry_tls_verify=true  # Verify TLS when connecting to the container registry
@@ -188,6 +209,7 @@ eda_pg_password=<set your own>
 # -----------------------------------------------------
 # redis_cluster_ip=10.0.0.1  # Bind IP for Redis cluster nodes (cluster mode)
 # redis_disable_tls=false  # Disable TLS for Redis cluster TCP connections
+# redis_mode=cluster  # Redis topology: cluster (default enterprise) or standalone (growth/single-node)
 # redis_port=6379  # Redis TCP port
 # redis_prefer_ipv6=false  # Prefer IPv6 addresses in dual-stack Redis cluster setups
 # redis_tls_cert=/path/to/redis.crt  # TLS certificate for Redis cluster
@@ -247,7 +269,6 @@ eda_pg_password=<set your own>
 # gateway_pg_sslmode=prefer  # Gateway PostgreSQL sslmode (disable, allow, prefer, require, verify-ca, verify-full)
 # gateway_pg_tls_cert=/path/to/gateway-db.crt  # Client TLS certificate for Gateway PostgreSQL connection
 # gateway_pg_tls_key=/path/to/gateway-db.key  # Client TLS key for Gateway PostgreSQL connection
-# gateway_pg_username=gateway  # Gateway PostgreSQL username
 # gateway_redis_disable_tls=false  # Disable TLS for external Redis used by Gateway
 # gateway_redis_host=redis.example.org  # External Redis hostname for Gateway (multi-node / non-socket setups)
 # gateway_redis_password=<set your own>  # External Redis password for Gateway
@@ -287,13 +308,13 @@ eda_pg_password=<set your own>
 # controller_nginx_https_protocols=  # Controller nginx SSL protocols; list; see vars-example.yml
 # controller_nginx_user_headers=  # Custom Controller nginx headers; list; see vars-example.yml
 # controller_nginx_read_timeout=15  # Controller nginx proxy read timeout seconds
+# controller_percent_memory_capacity=1.0  # Fraction of host memory allocated to Controller task capacity (0.0–1.0)
 # controller_pg_cert_auth=false  # Use certificate authentication for Controller PostgreSQL
 # controller_pg_port=5432  # Controller PostgreSQL port
 # controller_pg_socket=/var/run/postgresql  # PostgreSQL unix socket directory (instead of TCP host) for Controller DB
 # controller_pg_sslmode=prefer  # Controller PostgreSQL sslmode
 # controller_pg_tls_cert=/path/to/controller-db.crt  # Client TLS certificate for Controller PostgreSQL
 # controller_pg_tls_key=/path/to/controller-db.key  # Client TLS key for Controller PostgreSQL
-# controller_pg_username=awx  # Controller PostgreSQL username
 # controller_postinstall=false  # Run Controller postinstall to create projects, users, roles, etc.
 # controller_postinstall_async_delay=1  # Seconds between Controller postinstall retries
 # controller_postinstall_async_retries=30  # Maximum Controller postinstall retry attempts
@@ -337,7 +358,6 @@ eda_pg_password=<set your own>
 # hub_pg_sslmode=prefer  # Hub PostgreSQL sslmode
 # hub_pg_tls_cert=/path/to/hub-db.crt  # Client TLS certificate for Hub PostgreSQL
 # hub_pg_tls_key=/path/to/hub-db.key  # Client TLS key for Hub PostgreSQL
-# hub_pg_username=pulp  # Hub PostgreSQL username
 # hub_postinstall=false  # Run Hub postinstall to create collections, users, groups, etc.
 # hub_postinstall_async_delay=1  # Seconds between Hub postinstall retries
 # hub_postinstall_async_retries=30  # Maximum Hub postinstall retry attempts
@@ -346,6 +366,7 @@ eda_pg_password=<set your own>
 # hub_postinstall_repo_ref=main  # Git ref for Hub postinstall repository
 # hub_postinstall_repo_url=https://github.org/org/hub-postinstall.git  # Git URL for Hub postinstall repository
 # hub_secret_key=<set your own>  # Hub secret key (auto-generated if unset)
+# hub_seed_collections=true  # Upload bundled Ansible collections to Hub during install (requires bundle_install)
 # hub_storage_backend=file  # Hub content storage backend: file, azure, or s3
 # hub_tls_cert=/path/to/hub.crt  # Hub TLS certificate path
 # hub_tls_key=/path/to/hub.key  # Hub TLS private key path
@@ -409,14 +430,6 @@ eda_pg_password=<set your own>
 # eda_pg_sslmode=prefer  # EDA PostgreSQL sslmode
 # eda_pg_tls_cert=/path/to/eda-db.crt  # Client TLS certificate for EDA PostgreSQL
 # eda_pg_tls_key=/path/to/eda-db.key  # Client TLS key for EDA PostgreSQL
-# eda_pg_username=eda  # EDA PostgreSQL username
-# eda_redis_disable_tls=false  # Disable TLS for external Redis used by EDA (multi-node setups)
-# eda_redis_host=redis.example.org  # External Redis hostname for EDA
-# eda_redis_password=<set your own>  # External Redis password for EDA
-# eda_redis_port=6379  # External Redis port for EDA
-# eda_redis_tls_cert=/path/to/eda-redis.crt  # TLS client certificate for EDA Redis connection
-# eda_redis_tls_key=/path/to/eda-redis.key  # TLS client key for EDA Redis connection
-# eda_redis_username=eda  # External Redis username for EDA
 # eda_safe_plugins=  # Allowlisted EDA rulebook plugins; list; see vars-example.yml
 # eda_secret_key=<set your own>  # EDA secret key (auto-generated if unset)
 # eda_tls_cert=/path/to/eda.crt  # EDA TLS certificate path
@@ -434,6 +447,20 @@ eda_pg_password=<set your own>
 # eda_gunicorn_workers=5  # EDA gunicorn workers (default: 2 * CPU + 1)
 # eda_gunicorn_timeout=10  # EDA gunicorn timeout seconds
 # eda_gunicorn_timeout_grace_period=2  # EDA gunicorn graceful timeout seconds
+# eda_event_stream_pg_username=eda_event_stream  # EDA event stream PostgreSQL username
+# eda_event_stream_pg_password=<set your own>  # EDA event stream PostgreSQL password (auto-generated if unset)
+# eda_event_stream_pg_cert_auth=false  # Use certificate authentication for EDA event stream PostgreSQL
+# eda_event_stream_pg_tls_cert=/path/to/eda-event-stream-db.crt  # Client TLS certificate for EDA event stream PostgreSQL
+# eda_event_stream_pg_tls_key=/path/to/eda-event-stream-db.key  # Client TLS key for EDA event stream PostgreSQL
+# eda_event_stream_pg_sslmode=prefer  # EDA event stream PostgreSQL sslmode
+# eda_event_persistence_deploy_db=false  # Deploy managed PostgreSQL database for EDA event persistence
+# eda_event_persistence_pg_database=eda_event_persistence  # EDA event persistence PostgreSQL database name
+# eda_event_persistence_pg_username=eda_event_persistence  # EDA event persistence PostgreSQL username
+# eda_event_persistence_pg_password=<set your own>  # EDA event persistence PostgreSQL password (auto-generated if unset)
+# eda_event_persistence_pg_cert_auth=false  # Use certificate authentication for EDA event persistence PostgreSQL
+# eda_event_persistence_pg_tls_cert=/path/to/eda-event-persistence-db.crt  # Client TLS certificate for EDA event persistence PostgreSQL
+# eda_event_persistence_pg_tls_key=/path/to/eda-event-persistence-db.key  # Client TLS key for EDA event persistence PostgreSQL
+# eda_event_persistence_pg_sslmode=prefer  # EDA event persistence PostgreSQL sslmode
 
 # AAP Lightspeed
 # https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#lightspeed-variables
@@ -493,6 +520,11 @@ eda_pg_password=<set your own>
 # lightspeed_wca_idp_url=https://idp.example.org  # WCA identity provider URL (WCA cloud with IDP auth)
 # lightspeed_wca_idp_login=wca-user  # WCA IDP login username
 # lightspeed_wca_idp_password=<set your own>  # WCA IDP login password
+# lightspeed_idle_timeout=60  # Computed: max(client_request_timeout, 60) seconds for Lightspeed idle timeout
+# lightspeed_request_timeout=3600  # Computed: max(lightspeed_streaming_timeout, client_request_timeout) for Lightspeed requests
+# lightspeed_streaming_timeout=3600  # Timeout in seconds for streaming Lightspeed chat operations
+# lightspeed_chatbot_byok_image=quay.io/example/byok-rag-content:latest  # BYOK container image with FAISS vector DB at /rag/vector_db/
+# lightspeed_chatbot_byok_score_multiplier=1.2  # BYOK content score multiplier in Lightspeed search results
 
 # Ansible MCP Server
 # -----------------------------------------------------
@@ -513,8 +545,6 @@ eda_pg_password=<set your own>
 # automationmetrics_api_port=8006  # Internal Metrics Service application port (localhost only)
 # automationmetrics_controller_db=awx  # Automation Controller database name for read-only metrics access
 # automationmetrics_controller_pg_username=ms_awx_readonly  # Read-only PostgreSQL user for Controller database access
-# automationmetrics_controller_read_pg_password=<set your own>  # Password for read-only Controller database user
-# automationmetrics_controller_read_pg_host=externaldb.example.org  # Controller PostgreSQL host for read-only metrics access
 # automationmetrics_controller_read_pg_cert_auth=false  # Use certificate authentication for read-only Controller PostgreSQL
 # automationmetrics_controller_read_pg_port=5432  # Controller PostgreSQL port for read-only metrics access
 # automationmetrics_controller_read_pg_sslmode=prefer  # Read-only Controller PostgreSQL sslmode
@@ -539,14 +569,10 @@ eda_pg_password=<set your own>
 # automationmetrics_nginx_read_timeout=15  # Metrics Service nginx read timeout seconds
 # automationmetrics_nginx_user_headers=  # Custom Metrics Service nginx headers; list; see vars-example.yml
 # automationmetrics_pg_cert_auth=false  # Use certificate authentication for Metrics Service PostgreSQL
-# automationmetrics_pg_database=metrics_service  # Metrics Service PostgreSQL database name
-# automationmetrics_pg_host=externaldb.example.org  # Metrics Service PostgreSQL host
-# automationmetrics_pg_password=<set your own>  # Metrics Service PostgreSQL password
 # automationmetrics_pg_port=5432  # Metrics Service PostgreSQL port
 # automationmetrics_pg_sslmode=prefer  # Metrics Service PostgreSQL sslmode
 # automationmetrics_pg_tls_cert=/path/to/metrics-db.crt  # Client TLS certificate for Metrics Service PostgreSQL
 # automationmetrics_pg_tls_key=/path/to/metrics-db.key  # Client TLS key for Metrics Service PostgreSQL
-# automationmetrics_pg_username=metrics_service  # Metrics Service PostgreSQL username
 # automationmetrics_scheduler_check_interval=30  # Metrics scheduler polling interval in seconds
 # automationmetrics_secret_key=<set your own>  # Metrics Service secret key (auto-generated if unset)
 # automationmetrics_tls_cert=/path/to/metrics.crt  # Metrics Service TLS certificate path
@@ -554,12 +580,13 @@ eda_pg_password=<set your own>
 # automationmetrics_tls_remote=false  # Metrics Service TLS files are on the Metrics host
 # automationmetrics_use_archive_compression=true  # Compress Metrics Service backup archives
 # automationmetrics_use_db_compression=false  # Compress Metrics Service database dumps
+# automationmetrics_skip_install=false  # Skip Metrics Service when [automationcontroller] is present
 
 # AAP Lightspeed
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#lightspeed-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#lightspeed-variables
 # -----------------------------------------------------
 # lightspeed_admin_password=<set your own>
-# lightspeed_pg_host=aap.example.org
+# lightspeed_pg_host=externaldb.example.org
 # lightspeed_pg_password=<set your own>
 
 # In case chatbot is enabled, the default provider is "rhoai"

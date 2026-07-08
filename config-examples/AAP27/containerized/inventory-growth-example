@@ -1,14 +1,14 @@
 # This is the AAP installer inventory file intended for the Container growth deployment topology.
 # This inventory file expects to be run from the host where AAP will be installed.
 # Please consult the Ansible Automation Platform product documentation about this topology's tested hardware configuration.
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/tested_deployment_models/container-topologies
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/tested_deployment_models/container-topologies
 #
 # Please consult the docs if you're unsure what to add
 # For all optional variables please consult the included README.md
 # or the Ansible Automation Platform documentation:
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation
 
-# ENABLED lines below match the upstream AAP 2.6 inventory-growth starter.
+# ENABLED lines below match the upstream AAP 2.7 inventory-growth starter.
 # All other supported variables are listed commented out for reference.
 
 # This section is for your AAP Gateway host(s)
@@ -42,10 +42,10 @@ aap.example.org
 # [ansiblemcp]
 # aap.example.org
 
-# Automation Metrics Service (AAP 2.6+); requires [automationgateway]
+# Automation Metrics Service (required when [automationcontroller] is deployed)
 # -----------------------------------------------------
-# [automationmetrics]
-# aap.example.org
+[automationmetrics]
+aap.example.org
 
 # Execution nodes — not used in growth/all-in-one topology
 # -----------------------------------------------------
@@ -68,7 +68,7 @@ aap.example.org
 ansible_connection=local
 
 # Common variables
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#general-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#general-variables
 # -----------------------------------------------------
 postgresql_admin_username=postgres
 postgresql_admin_password=<set your own>
@@ -77,14 +77,14 @@ registry_password=<your RHN password>
 redis_mode=standalone
 
 # AAP Gateway
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#platform-gateway-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#platform-gateway-variables
 # -----------------------------------------------------
 gateway_admin_password=<set your own>
 gateway_pg_host=aap.example.org
 gateway_pg_password=<set your own>
 
 # AAP Controller
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#controller-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#controller-variables
 # -----------------------------------------------------
 controller_admin_password=<set your own>
 controller_pg_host=aap.example.org
@@ -92,7 +92,7 @@ controller_pg_password=<set your own>
 controller_percent_memory_capacity=0.5
 
 # AAP Automation Hub
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#hub-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#hub-variables
 # -----------------------------------------------------
 hub_admin_password=<set your own>
 hub_pg_host=aap.example.org
@@ -100,11 +100,19 @@ hub_pg_password=<set your own>
 hub_seed_collections=false
 
 # AAP EDA Controller
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#event-driven-ansible-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#event-driven-ansible-variables
 # -----------------------------------------------------
 eda_admin_password=<set your own>
 eda_pg_host=aap.example.org
 eda_pg_password=<set your own>
+
+# Automation Metrics Service
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#automation-metrics-service-variables
+# -----------------------------------------------------
+automationmetrics_pg_host=aap.example.org
+automationmetrics_pg_password=<set your own>
+automationmetrics_controller_read_pg_host=aap.example.org
+automationmetrics_controller_read_pg_password=<set your own>
 
 # Optional variables — uncomment and customize as needed
 # Complex list/dictionary variables are documented here; see vars-example.yml
@@ -127,7 +135,7 @@ eda_pg_password=<set your own>
 # feature_flags=  # Dictionary of feature flags (keys must start with feature_, values boolean); see vars-example.yml
 # images_tmp_dir=/tmp  # Directory to extract bundled container images during offline install
 # registry_auth=true  # Authenticate to the container registry (disable for open registries)
-# registry_ns_aap=ansible-automation-platform-26  # Registry namespace for AAP component images
+# registry_ns_aap=ansible-automation-platform-27  # Registry namespace for AAP component images
 # registry_ns_aap_tp=ansible-automation-platform-tech-preview  # Registry namespace for AAP tech-preview images
 # registry_ns_rhel=rhel9  # Registry namespace for RHEL base images
 # registry_tls_verify=true  # Verify TLS when connecting to the container registry
@@ -410,13 +418,6 @@ eda_pg_password=<set your own>
 # eda_pg_tls_cert=/path/to/eda-db.crt  # Client TLS certificate for EDA PostgreSQL
 # eda_pg_tls_key=/path/to/eda-db.key  # Client TLS key for EDA PostgreSQL
 # eda_pg_username=eda  # EDA PostgreSQL username
-# eda_redis_disable_tls=false  # Disable TLS for external Redis used by EDA (multi-node setups)
-# eda_redis_host=redis.example.org  # External Redis hostname for EDA
-# eda_redis_password=<set your own>  # External Redis password for EDA
-# eda_redis_port=6379  # External Redis port for EDA
-# eda_redis_tls_cert=/path/to/eda-redis.crt  # TLS client certificate for EDA Redis connection
-# eda_redis_tls_key=/path/to/eda-redis.key  # TLS client key for EDA Redis connection
-# eda_redis_username=eda  # External Redis username for EDA
 # eda_safe_plugins=  # Allowlisted EDA rulebook plugins; list; see vars-example.yml
 # eda_secret_key=<set your own>  # EDA secret key (auto-generated if unset)
 # eda_tls_cert=/path/to/eda.crt  # EDA TLS certificate path
@@ -434,6 +435,20 @@ eda_pg_password=<set your own>
 # eda_gunicorn_workers=5  # EDA gunicorn workers (default: 2 * CPU + 1)
 # eda_gunicorn_timeout=10  # EDA gunicorn timeout seconds
 # eda_gunicorn_timeout_grace_period=2  # EDA gunicorn graceful timeout seconds
+# eda_event_stream_pg_username=eda_event_stream  # EDA event stream PostgreSQL username
+# eda_event_stream_pg_password=<set your own>  # EDA event stream PostgreSQL password (auto-generated if unset)
+# eda_event_stream_pg_cert_auth=false  # Use certificate authentication for EDA event stream PostgreSQL
+# eda_event_stream_pg_tls_cert=/path/to/eda-event-stream-db.crt  # Client TLS certificate for EDA event stream PostgreSQL
+# eda_event_stream_pg_tls_key=/path/to/eda-event-stream-db.key  # Client TLS key for EDA event stream PostgreSQL
+# eda_event_stream_pg_sslmode=prefer  # EDA event stream PostgreSQL sslmode
+# eda_event_persistence_deploy_db=false  # Deploy managed PostgreSQL database for EDA event persistence
+# eda_event_persistence_pg_database=eda_event_persistence  # EDA event persistence PostgreSQL database name
+# eda_event_persistence_pg_username=eda_event_persistence  # EDA event persistence PostgreSQL username
+# eda_event_persistence_pg_password=<set your own>  # EDA event persistence PostgreSQL password (auto-generated if unset)
+# eda_event_persistence_pg_cert_auth=false  # Use certificate authentication for EDA event persistence PostgreSQL
+# eda_event_persistence_pg_tls_cert=/path/to/eda-event-persistence-db.crt  # Client TLS certificate for EDA event persistence PostgreSQL
+# eda_event_persistence_pg_tls_key=/path/to/eda-event-persistence-db.key  # Client TLS key for EDA event persistence PostgreSQL
+# eda_event_persistence_pg_sslmode=prefer  # EDA event persistence PostgreSQL sslmode
 
 # AAP Lightspeed
 # https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#lightspeed-variables
@@ -493,6 +508,11 @@ eda_pg_password=<set your own>
 # lightspeed_wca_idp_url=https://idp.example.org  # WCA identity provider URL (WCA cloud with IDP auth)
 # lightspeed_wca_idp_login=wca-user  # WCA IDP login username
 # lightspeed_wca_idp_password=<set your own>  # WCA IDP login password
+# lightspeed_idle_timeout=60  # Computed: max(client_request_timeout, 60) seconds for Lightspeed idle timeout
+# lightspeed_request_timeout=3600  # Computed: max(lightspeed_streaming_timeout, client_request_timeout) for Lightspeed requests
+# lightspeed_streaming_timeout=3600  # Timeout in seconds for streaming Lightspeed chat operations
+# lightspeed_chatbot_byok_image=quay.io/example/byok-rag-content:latest  # BYOK container image with FAISS vector DB at /rag/vector_db/
+# lightspeed_chatbot_byok_score_multiplier=1.2  # BYOK content score multiplier in Lightspeed search results
 
 # Ansible MCP Server
 # -----------------------------------------------------
@@ -513,8 +533,6 @@ eda_pg_password=<set your own>
 # automationmetrics_api_port=8006  # Internal Metrics Service application port (localhost only)
 # automationmetrics_controller_db=awx  # Automation Controller database name for read-only metrics access
 # automationmetrics_controller_pg_username=ms_awx_readonly  # Read-only PostgreSQL user for Controller database access
-# automationmetrics_controller_read_pg_password=<set your own>  # Password for read-only Controller database user
-# automationmetrics_controller_read_pg_host=externaldb.example.org  # Controller PostgreSQL host for read-only metrics access
 # automationmetrics_controller_read_pg_cert_auth=false  # Use certificate authentication for read-only Controller PostgreSQL
 # automationmetrics_controller_read_pg_port=5432  # Controller PostgreSQL port for read-only metrics access
 # automationmetrics_controller_read_pg_sslmode=prefer  # Read-only Controller PostgreSQL sslmode
@@ -540,8 +558,6 @@ eda_pg_password=<set your own>
 # automationmetrics_nginx_user_headers=  # Custom Metrics Service nginx headers; list; see vars-example.yml
 # automationmetrics_pg_cert_auth=false  # Use certificate authentication for Metrics Service PostgreSQL
 # automationmetrics_pg_database=metrics_service  # Metrics Service PostgreSQL database name
-# automationmetrics_pg_host=externaldb.example.org  # Metrics Service PostgreSQL host
-# automationmetrics_pg_password=<set your own>  # Metrics Service PostgreSQL password
 # automationmetrics_pg_port=5432  # Metrics Service PostgreSQL port
 # automationmetrics_pg_sslmode=prefer  # Metrics Service PostgreSQL sslmode
 # automationmetrics_pg_tls_cert=/path/to/metrics-db.crt  # Client TLS certificate for Metrics Service PostgreSQL
@@ -554,9 +570,10 @@ eda_pg_password=<set your own>
 # automationmetrics_tls_remote=false  # Metrics Service TLS files are on the Metrics host
 # automationmetrics_use_archive_compression=true  # Compress Metrics Service backup archives
 # automationmetrics_use_db_compression=false  # Compress Metrics Service database dumps
+# automationmetrics_skip_install=false  # Skip Metrics Service when [automationcontroller] is present
 
 # AAP Lightspeed
-# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#lightspeed-variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/html/containerized_installation/appendix-inventory-files-vars#lightspeed-variables
 # -----------------------------------------------------
 # lightspeed_admin_password=<set your own>
 # lightspeed_pg_host=aap.example.org

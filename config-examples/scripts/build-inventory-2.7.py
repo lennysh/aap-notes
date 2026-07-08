@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Backward-compatible wrapper for AAP 2.6 inventory generation."""
+"""Generate AAP 2.7 containerized installer inventory examples."""
 
 from build_inventory import VERSIONS, generate_version
 
 if __name__ == "__main__":
-    generate_version(VERSIONS["2.6"])
+    generate_version(VERSIONS["2.7"])

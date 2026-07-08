@@ -17,17 +17,27 @@ config-examples/
 ├── CONTAINERIZED_INVENTORY_CONTEXT.md   # maintenance guide for containerized inventories
 ├── .crd-dumps/                          # OpenShift operator CRD dumps (local)
 ├── .installer-dumps/                  # containerized installer tarballs (local)
+│   ├── 2.5/ansible-automation-platform-containerized-setup-2.5-*/
+│   ├── 2.6/ansible-automation-platform-containerized-setup-2.6-*/
+│   └── 2.7/ansible-automation-platform-containerized-setup-2.7-*/
 ├── scripts/
-│   └── build-inventory-2.6.py         # regenerates AAP 2.6 containerized inventories
+│   ├── build_inventory.py             # generator for all containerized versions
+│   ├── build-inventory-2.5.py         # thin wrapper
+│   ├── build-inventory-2.6.py         # thin wrapper
+│   └── build-inventory-2.7.py         # thin wrapper
 ├── AAP24/openshift/
-├── AAP25/openshift/
+├── AAP25/
+│   ├── openshift/
+│   └── containerized/
 ├── AAP26/
 │   ├── openshift/
 │   └── containerized/
-└── AAP27/openshift/
+└── AAP27/
+    ├── openshift/
+    └── containerized/
 ```
 
-Future containerized versions follow the same pattern: `AAP{XY}/containerized/` with `inventory-example`, `inventory-growth-example`, `vars-example.yml`, and `scripts/build-inventory-{XY}.py`.
+Containerized inventories for 2.5, 2.6, and 2.7 are generated from a shared catalog in `scripts/build_inventory.py`.
 
 ## OpenShift operator examples
 
@@ -56,9 +66,11 @@ CR example YAML is generated from operator CRD dumps using [generate-aap-cr-exam
 
 Annotated Ansible inventory files for the **containerized installer** (`ansible.containerized_installer`). **Enabled lines match the upstream starter inventories**; every other supported variable is listed commented out with a short explanation.
 
-| Folder | AAP version | Docs |
-|--------|-------------|------|
-| [`AAP26/containerized/`](AAP26/containerized/) | 2.6 | [README](AAP26/containerized/README.md) |
+| Folder | AAP version | Installer dump | Docs |
+|--------|-------------|----------------|------|
+| [`AAP25/containerized/`](AAP25/containerized/) | 2.5 | `2.5-25` | [README](AAP25/containerized/README.md) |
+| [`AAP26/containerized/`](AAP26/containerized/) | 2.6 | `2.6-10` | [README](AAP26/containerized/README.md) |
+| [`AAP27/containerized/`](AAP27/containerized/) | 2.7 | `2.7-2` | [README](AAP27/containerized/README.md) |
 
 Each version directory includes:
 
@@ -68,7 +80,7 @@ Each version directory includes:
 | `inventory-growth-example` | `inventory-growth` | Container growth — single host, managed database |
 | `vars-example.yml` | — | YAML-only options (lists/dicts); use with `-e @vars.yml` |
 
-### Quick start (2.6)
+### Quick start
 
 ```bash
 cp AAP26/containerized/inventory-example /path/to/my-inventory
@@ -76,11 +88,14 @@ cp AAP26/containerized/inventory-example /path/to/my-inventory
 ansible-playbook -i /path/to/my-inventory ansible.containerized_installer.install
 ```
 
+Use `AAP25/containerized/` or `AAP27/containerized/` for those versions.
+
 ### Regenerating containerized inventories
 
 ```bash
 cd /path/to/aap-notes/config-examples
-python3 scripts/build-inventory-2.6.py
+python3 scripts/build_inventory.py              # all versions
+python3 scripts/build_inventory.py --version 2.7  # one version
 ```
 
 See [CONTAINERIZED_INVENTORY_CONTEXT.md](CONTAINERIZED_INVENTORY_CONTEXT.md) for the full maintenance workflow when adding a new AAP version or refreshing after a Red Hat installer update.
@@ -93,7 +108,7 @@ Place extracted installers under `.installer-dumps/` (gitignored). This repo doe
 
 - **OpenShift 2.4** — `config-examples/AAP24/openshift/`
 - **OpenShift 2.5+** — `config-examples/AAP25/openshift/` (use AAP26/AAP27 for version-specific fields)
-- **Containerized 2.6** — `config-examples/AAP26/containerized/` or `config-examples/CONTAINERIZED_INVENTORY_CONTEXT.md` when refreshing inventories
+- **Containerized** — `config-examples/AAP25/containerized/`, `AAP26/containerized/`, or `AAP27/containerized/` (or `config-examples/CONTAINERIZED_INVENTORY_CONTEXT.md` when refreshing inventories)
 
 Pair with [`rbac/`](../rbac/) when questions span both deployment and access control.
 

@@ -2,6 +2,8 @@
 
 Reference Ansible inventories for the **AAP 2.6 containerized installer** (`ansible-automation-platform-containerized-setup-2.6-*`).
 
+Verified against installer dump: `ansible-automation-platform-containerized-setup-2.6-10`.
+
 For OpenShift operator manifests, see [AAP 2.6 on OpenShift](../openshift/README.md). For maintenance when adding versions or refreshing after installer updates, see [CONTAINERIZED_INVENTORY_CONTEXT.md](../../CONTAINERIZED_INVENTORY_CONTEXT.md).
 
 ## Files
@@ -84,7 +86,7 @@ controller_extra_settings:
 
 ```bash
 cd /path/to/aap-notes/config-examples
-python3 scripts/build-inventory-2.6.py
+python3 scripts/build_inventory.py --version 2.6
 ```
 
-Variable definitions live in [`scripts/build-inventory-2.6.py`](../../scripts/build-inventory-2.6.py). When Red Hat ships a new 2.6 installer refresh, diff the upstream README and role defaults against that catalog, then regenerate. See [CONTAINERIZED_INVENTORY_CONTEXT.md](../../CONTAINERIZED_INVENTORY_CONTEXT.md) for the full workflow.
+Variable definitions live in [`scripts/build_inventory.py`](../../scripts/build_inventory.py). When Red Hat ships a new 2.6 installer refresh, diff the upstream README and role defaults against that catalog, then regenerate. See [CONTAINERIZED_INVENTORY_CONTEXT.md](../../CONTAINERIZED_INVENTORY_CONTEXT.md) for the full workflow.
