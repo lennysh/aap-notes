@@ -1,0 +1,243 @@
+---
+# AAP 2.6 optional variables — YAML-only (lists and dictionaries)
+#
+# Scalar options belong in the inventory file (see inventory-example or
+# inventory-growth-example). This file covers complex types that do not
+# work well in INI inventory syntax.
+#
+# Usage:
+#   1. Copy this file to vars.yml (or merge into group_vars/all.yml)
+#   2. Uncomment and edit the variables you need
+#   3. Run: ansible-playbook -i inventory ansible.containerized_installer.install -e @vars.yml
+#
+# Regenerate from catalog: python3 scripts/build-inventory-2.6.py
+
+
+# Common / installer-wide
+# -----------------------------------------------------
+
+# Dictionary of feature flags (keys must start with feature_, values boolean)
+# feature_flags:
+#   feature_example_flag: true
+
+# Host tuning
+# -----------------------------------------------------
+
+# Container images
+# -----------------------------------------------------
+
+# Additional Decision Environment images to upload to Hub; list
+# de_extra_images:
+#   - name: my-custom-de
+#     image: registry.example.org/my-ee:latest
+
+# Additional Execution Environment images to upload to Hub; list
+# ee_extra_images:
+#   - name: my-custom-ee
+#     image: registry.example.org/my-ee:latest
+
+# PostgreSQL / managed database
+# -----------------------------------------------------
+
+# Extra postgresql.conf settings as list of setting/value dicts
+# postgresql_extra_settings:
+#   - setting: ssl_ciphers
+#     value: 'HIGH:!aNULL:!MD5'
+
+# Redis
+# -----------------------------------------------------
+
+# Receptor
+# -----------------------------------------------------
+
+# Additional Receptor peer definitions; list
+# receptor_peers:
+#   - exec1.example.org
+#   - exec2.example.org
+
+# Performance Co-Pilot monitoring
+# -----------------------------------------------------
+
+# Log gathering (ansible.containerized_installer.log_gathering playbook)
+# -----------------------------------------------------
+
+# AAP Gateway
+# -----------------------------------------------------
+
+# Extra Gateway Django settings as list of setting/value dicts
+# gateway_extra_settings:
+#   - setting: OAUTH2_PROVIDER['ACCESS_TOKEN_EXPIRE_SECONDS']
+#     value: true
+
+# Gateway nginx SSL protocols; list
+# gateway_nginx_https_protocols:
+#   - TLSv1.2
+#   - TLSv1.3
+
+# Custom nginx headers; list
+# gateway_nginx_user_headers:
+#   - 'X-Custom-Header "value"'
+
+# AAP Controller
+# -----------------------------------------------------
+
+# Extra Controller settings as list of setting/value dicts
+# controller_extra_settings:
+#   - setting: USE_X_FORWARDED_HOST
+#     value: true
+
+# Controller nginx SSL protocols; list
+# controller_nginx_https_protocols:
+#   - TLSv1.2
+#   - TLSv1.3
+
+# Custom Controller nginx headers; list
+# controller_nginx_user_headers:
+#   - 'X-Custom-Header "value"'
+
+# Files to skip during Controller postinstall; list
+# controller_postinstall_ignore_files:
+#   - example-entry
+
+# Metrics Utility extra settings; list
+# metrics_utility_extra_settings:
+#   - setting: SOME_METRICS_SETTING
+#     value: true
+
+# AAP Automation Hub
+# -----------------------------------------------------
+
+# Extra Hub settings as list of setting/value dicts
+# hub_extra_settings:
+#   - setting: REDIRECT_IS_HTTPS
+#     value: true
+
+# Paths excluded from Hub backup; list
+# hub_data_path_exclude:
+#   - example-entry
+
+# Galaxy importer configuration dictionary
+# hub_galaxy_importer:
+#   ansible_test_local_image: false
+
+# Hub nginx SSL protocols; list
+# hub_nginx_https_protocols:
+#   - TLSv1.2
+#   - TLSv1.3
+
+# Custom Hub nginx headers; list
+# hub_nginx_user_headers:
+#   - 'X-Custom-Header "value"'
+
+# Files to skip during Hub postinstall; list
+# hub_postinstall_ignore_files:
+#   - example-entry
+
+# Automation Hub — shared NFS storage (required for multi-node file backend)
+# -----------------------------------------------------
+
+# Automation Hub — Azure blob storage (set hub_storage_backend=azure)
+# -----------------------------------------------------
+
+# Extra Azure storage settings dictionary
+# hub_azure_extra_settings:
+#   AZURE_LOCATION: foo
+#   AZURE_SSL: true
+#   AZURE_URL_EXPIRATION_SECS: 60
+
+# Automation Hub — S3 storage (set hub_storage_backend=s3)
+# -----------------------------------------------------
+
+# Extra S3 storage settings dictionary
+# hub_s3_extra_settings:
+#   AWS_S3_MAX_MEMORY_SIZE: 4096
+#   AWS_S3_REGION_NAME: eu-central-1
+#   AWS_S3_USE_SSL: true
+
+# Automation Hub — content signing
+# -----------------------------------------------------
+
+# AAP EDA Controller
+# -----------------------------------------------------
+
+# Extra EDA settings as list of setting/value dicts
+# eda_extra_settings:
+#   - setting: RULEBOOK_READINESS_TIMEOUT_SECONDS
+#     value: 120
+
+# EDA nginx SSL protocols; list
+# eda_nginx_https_protocols:
+#   - TLSv1.2
+#   - TLSv1.3
+
+# Custom EDA nginx headers; list
+# eda_nginx_user_headers:
+#   - 'X-Custom-Header "value"'
+
+# Allowlisted EDA rulebook plugins; list
+# eda_safe_plugins:
+#   - example-entry
+
+# AAP Lightspeed
+# -----------------------------------------------------
+
+# Lightspeed nginx SSL protocols; list
+# lightspeed_nginx_https_protocols:
+#   - TLSv1.2
+#   - TLSv1.3
+
+# Custom Lightspeed nginx headers; list
+# lightspeed_nginx_user_headers:
+#   - 'X-Custom-Header "value"'
+
+# Lightspeed chatbot
+# -----------------------------------------------------
+
+# Extra chatbot model settings dictionary
+# lightspeed_chatbot_model_extra_settings:
+#   api_version: '1.0.1'
+#   api_type: ''
+
+# Extra chatbot agent settings dictionary
+# lightspeed_chatbot_agent_extra_settings:
+#   chatbot_temperature_override: 1.0
+
+# Lightspeed MCP tools
+# -----------------------------------------------------
+
+# Lightspeed Watson Code Assistant (WCA)
+# -----------------------------------------------------
+
+# Ansible MCP Server
+# -----------------------------------------------------
+
+# MCP Server nginx SSL protocols; list
+# mcp_nginx_https_protocols:
+#   - TLSv1.2
+#   - TLSv1.3
+
+# Custom MCP Server nginx headers; list
+# mcp_nginx_user_headers:
+#   - 'X-Custom-Header "value"'
+
+# Extra MCP Server settings; list
+# mcp_extra_settings:
+#   - setting: OAUTH2_PROVIDER['ACCESS_TOKEN_EXPIRE_SECONDS']
+#     value: true
+
+# Automation Metrics Service (AAP 2.6+)
+# -----------------------------------------------------
+
+# Extra Metrics Service settings; list
+# automationmetrics_extra_settings:
+#   - setting: SOME_SETTING
+#     value: true
+
+# Metrics Service nginx SSL protocols; list
+# automationmetrics_nginx_https_protocols:
+#   - TLSv1.2
+#   - TLSv1.3
+
+# Custom Metrics Service nginx headers; list
+# automationmetrics_nginx_user_headers:
+#   - 'X-Custom-Header "value"'

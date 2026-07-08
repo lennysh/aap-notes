@@ -1,54 +1,106 @@
 # AAP Config Examples
 
-Example Kubernetes manifests for deploying [Ansible Automation Platform (AAP)](https://www.redhat.com/en/technologies/management/ansible) with the Red Hat AAP Operator on OpenShift. These are **reference material**, not production-ready templates — replace placeholder values, trim secrets you do not need, and validate against your environment before applying.
+Reference configuration for deploying [Ansible Automation Platform (AAP)](https://www.redhat.com/en/technologies/management/ansible). These are **not production-ready templates** — replace placeholder values, trim options you do not need, and validate against your environment before use.
 
-Secrets are kept in separate YAML files from Custom Resources so credentials stay out of CR specs.
+Examples are grouped by **AAP version** and **deployment method**:
 
-## Layout
+| Method | What you get | Local tooling (gitignored) |
+|--------|--------------|----------------------------|
+| **OpenShift** | Kubernetes manifests (CRs + secrets) for the AAP Operator | `.crd-dumps/<version>/` |
+| **Containerized** | Annotated Ansible inventories for the containerized installer | `.installer-dumps/` |
 
-| Folder | AAP version | Deployment model | OpenShift docs |
-|--------|-------------|------------------|----------------|
+## Repository layout
+
+```
+config-examples/
+├── README.md
+├── CONTAINERIZED_INVENTORY_CONTEXT.md   # maintenance guide for containerized inventories
+├── .crd-dumps/                          # OpenShift operator CRD dumps (local)
+├── .installer-dumps/                  # containerized installer tarballs (local)
+├── scripts/
+│   └── build-inventory-2.6.py         # regenerates AAP 2.6 containerized inventories
+├── AAP24/openshift/
+├── AAP25/openshift/
+├── AAP26/
+│   ├── openshift/
+│   └── containerized/
+└── AAP27/openshift/
+```
+
+Future containerized versions follow the same pattern: `AAP{XY}/containerized/` with `inventory-example`, `inventory-growth-example`, `vars-example.yml`, and `scripts/build-inventory-{XY}.py`.
+
+## OpenShift operator examples
+
+Kubernetes manifests for the Red Hat AAP Operator on OpenShift. Secrets are kept in separate YAML files from Custom Resources.
+
+| Folder | AAP version | Deployment model | Docs |
+|--------|-------------|------------------|------|
 | [`AAP24/openshift/`](AAP24/openshift/) | 2.4 | Component CRs (`AutomationController`, `AutomationHub`, `EDA`) | [README](AAP24/openshift/README.md) |
 | [`AAP25/openshift/`](AAP25/openshift/) | 2.5 | Platform CR (`AnsibleAutomationPlatform`) | [README](AAP25/openshift/README.md) |
 | [`AAP26/openshift/`](AAP26/openshift/) | 2.6 | Platform CR | [README](AAP26/openshift/README.md) |
 | [`AAP27/openshift/`](AAP27/openshift/) | 2.7 | Platform CR | [README](AAP27/openshift/README.md) |
 
-All examples target the `aap` namespace. Create it (or change `namespace` everywhere) before deploying. Do **not** deploy AAP into the `default` namespace.
+All OpenShift examples target the `aap` namespace. Create it (or change `namespace` everywhere) before deploying. Do **not** deploy AAP into the `default` namespace.
 
-## AAP 2.4 vs 2.5+
+### AAP 2.4 vs 2.5+ (OpenShift)
 
-**AAP 2.4** uses one Custom Resource per component. You apply separate secret manifests, then `controller.yml`, `hub.yml`, and `eda.yml`. See [AAP24/openshift/README.md](AAP24/openshift/README.md) for the full secret catalog and deployment order.
+**AAP 2.4** uses one Custom Resource per component. Apply component secret manifests, then `controller.yml`, `hub.yml`, and `eda.yml`. See [AAP24/openshift/README.md](AAP24/openshift/README.md) for the full secret catalog.
 
-**AAP 2.5 and later** use a single **`AnsibleAutomationPlatform`** CR. The operator creates the platform gateway and manages child component CRs from nested `spec.controller`, `spec.hub`, and `spec.eda` blocks. You apply `secrets-aap.yml`, then `aap.yml`. The [AAP 2.5 README](AAP25/openshift/README.md) is the primary reference for this model; 2.6 and 2.7 READMEs call out version-specific deltas.
+**AAP 2.5 and later** use a single **`AnsibleAutomationPlatform`** CR with nested `spec.controller`, `spec.hub`, and `spec.eda` blocks. Apply `secrets-aap.yml`, then `aap.yml`. The [AAP 2.5 README](AAP25/openshift/README.md) is the primary reference; 2.6 and 2.7 READMEs call out version-specific deltas.
 
-## Typical apply order (2.5+)
+### Regenerating OpenShift examples
 
-```shell
-oc create namespace aap
-oc apply -f secrets-aap.yml
-oc apply -f aap.yml
+CR example YAML is generated from operator CRD dumps using [generate-aap-cr-examples](https://github.com/lennysh/openshift-playground/tree/devel/generate-aap-cr-examples) in **openshift-playground**. Each version README includes the exact command and output path.
+
+## Containerized installer examples
+
+Annotated Ansible inventory files for the **containerized installer** (`ansible.containerized_installer`). **Enabled lines match the upstream starter inventories**; every other supported variable is listed commented out with a short explanation.
+
+| Folder | AAP version | Docs |
+|--------|-------------|------|
+| [`AAP26/containerized/`](AAP26/containerized/) | 2.6 | [README](AAP26/containerized/README.md) |
+
+Each version directory includes:
+
+| File | Upstream equivalent | Topology |
+|------|---------------------|----------|
+| `inventory-example` | `inventory` | Enterprise — external PostgreSQL, Redis cluster |
+| `inventory-growth-example` | `inventory-growth` | Container growth — single host, managed database |
+| `vars-example.yml` | — | YAML-only options (lists/dicts); use with `-e @vars.yml` |
+
+### Quick start (2.6)
+
+```bash
+cp AAP26/containerized/inventory-example /path/to/my-inventory
+# edit placeholders; optionally: cp vars-example.yml vars.yml and pass -e @vars.yml
+ansible-playbook -i /path/to/my-inventory ansible.containerized_installer.install
 ```
 
-For 2.4, apply component secret files first, then the component CRs — see the version README for the full sequence.
+### Regenerating containerized inventories
 
-## Regenerating examples
+```bash
+cd /path/to/aap-notes/config-examples
+python3 scripts/build-inventory-2.6.py
+```
 
-CR example YAML is generated from operator CRD dumps using [generate-aap-cr-examples](https://github.com/lennysh/openshift-playground/tree/devel/generate-aap-cr-examples) in **openshift-playground**. CRD dumps are stored under `.crd-dumps/<version>/` (local, not committed).
+See [CONTAINERIZED_INVENTORY_CONTEXT.md](CONTAINERIZED_INVENTORY_CONTEXT.md) for the full maintenance workflow when adding a new AAP version or refreshing after a Red Hat installer update.
 
-Each version README includes the exact `generate-aap-cr-examples.py` invocation and output path.
+Place extracted installers under `.installer-dumps/` (gitignored). This repo does not redistribute Red Hat software.
 
 ## Using with Cursor / other agents
 
-`@`-mention the folder for your AAP version when asking about deployment wiring, secret field names, or CR spec options:
+`@`-mention the folder that matches your deployment method and AAP version:
 
-- **2.4** — `config-examples/AAP24/openshift/` (component CRs and per-component secret files)
-- **2.5+** — `config-examples/AAP25/openshift/` (platform CR model; use AAP26/AAP27 folders for version-specific fields)
+- **OpenShift 2.4** — `config-examples/AAP24/openshift/`
+- **OpenShift 2.5+** — `config-examples/AAP25/openshift/` (use AAP26/AAP27 for version-specific fields)
+- **Containerized 2.6** — `config-examples/AAP26/containerized/` or `config-examples/CONTAINERIZED_INVENTORY_CONTEXT.md` when refreshing inventories
 
 Pair with [`rbac/`](../rbac/) when questions span both deployment and access control.
 
 ## Constraints
 
 - **Not production templates** — placeholder passwords, example hostnames, and commented optional blocks are intentional.
-- **External Postgres** — Hub requires the `hstore` extension when using an external database (documented in the 2.4 and 2.5 READMEs).
-- **Operator-generated secrets** — Omitting encryption keys or admin passwords lets the operator create them; pre-provision secrets for GitOps and migration.
-- **Hub storage** — S3 or Azure, not both.
+- **External Postgres (OpenShift)** — Hub requires the `hstore` extension when using an external database.
+- **Operator-generated secrets (OpenShift)** — Pre-provision secrets for GitOps and migration when you need deterministic credentials.
+- **Hub storage (OpenShift)** — S3 or Azure, not both.
+- **Installer sources (containerized)** — Keep tarballs local under `.installer-dumps/`; they are not committed.

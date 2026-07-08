@@ -7,18 +7,21 @@ Personal reference material for [Ansible Automation Platform (AAP)](https://www.
 | Folder | Description |
 |--------|-------------|
 | [`rbac/`](rbac/) | RBAC concepts, role catalogs, hierarchy diagrams, organizational design guidance, and agent-oriented lookup material |
-| [`config-examples/`](config-examples/) | Example deployment manifests and related notes (not production-ready templates). **AAP 2.4** uses component CRs directly; **AAP 2.5+** uses the `AnsibleAutomationPlatform` platform CR. |
+| [`config-examples/`](config-examples/) | Example deployment configuration (not production-ready templates). **OpenShift:** AAP 2.4 uses component CRs; 2.5+ uses the `AnsibleAutomationPlatform` platform CR. **Containerized:** annotated Ansible inventories for the containerized installer (2.6 so far). |
 
 ## Quick links
 
 - **RBAC overview and file index** — [`rbac/README.md`](rbac/README.md)
+- **Config examples index** — [`config-examples/README.md`](config-examples/README.md)
 - **OpenShift operator examples** — [`AAP 2.4`](config-examples/AAP24/openshift/README.md) · [`AAP 2.5`](config-examples/AAP25/openshift/README.md) · [`AAP 2.6`](config-examples/AAP26/openshift/README.md) · [`AAP 2.7`](config-examples/AAP27/openshift/README.md)
+- **Containerized installer examples** — [`AAP 2.6`](config-examples/AAP26/containerized/README.md)
 
 ## Using with Cursor / other agents
 
 Add this repo to your workspace, then `@`-mention the doc that matches your question:
 
 - RBAC goals and role lookup → `rbac/AAP-RBAC-AGENT-CONTEXT.md`
-- Deployment secrets and CR wiring → `config-examples/AAP24/openshift/` (or the matching `AAP25` / `AAP26` / `AAP27` folder for your version)
+- OpenShift secrets and CR wiring → `config-examples/AAP24/openshift/` (or the matching `AAP25` / `AAP26` / `AAP27` folder for your version)
+- Containerized installer inventory options → `config-examples/AAP26/containerized/` (or `config-examples/CONTAINERIZED_INVENTORY_CONTEXT.md` when refreshing inventories)
 
 Most material under `rbac/` was derived from local forks of upstream AAP component repos; see [`rbac/README.md`](rbac/README.md) for the source list.
