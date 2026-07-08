@@ -90,10 +90,10 @@ spec:
   api:
     log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
     replicas: 1  # default; The number of replicas for the deployment.
-    resource_requirements:
+    # resource_requirements:
       # limits: {}
       # requests: {}
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 
@@ -101,10 +101,10 @@ spec:
   content:
     log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
     replicas: 2  # default; The number of replicas for the deployment.
-    resource_requirements:
+    # resource_requirements:
       # limits: {}
       # requests: {}
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 
@@ -112,20 +112,20 @@ spec:
   redis:
     log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
     replicas: 1  # default; (Deprecated) The number of replicas for redis is 1
-    resource_requirements:
+    # resource_requirements:
       # limits: {}
       # requests: {}
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
   # redis_storage_class: example-value  # Storage class to use for the Redis PVC
   # redis_storage_size: example-value  # Storage size to use for the Redis PVC
-  redis_resource_requirements:
-    limits:
+  # redis_resource_requirements:
+    # limits:
       # cpu: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # memory: example-value
       # storage: example-value
@@ -133,30 +133,30 @@ spec:
   # --- Resource manager deployment ---
   resource_manager:
     replicas: 1  # default; The number of replicas for the deployment.
-    resource_requirements:
+    # resource_requirements:
       # limits: {}
       # requests: {}
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 
   # --- Web deployment ---
   web:
     replicas: 1  # default; The number of replicas for the deployment.
-    resource_requirements:
+    # resource_requirements:
       # limits: {}
       # requests: {}
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 
   # --- Worker deployment ---
   worker:
     replicas: 2  # default; The number of replicas for the deployment.
-    resource_requirements:
+    # resource_requirements:
       # limits: {}
       # requests: {}
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 

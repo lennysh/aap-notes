@@ -56,26 +56,26 @@ spec:
   # postgres_extra_volumes: example-value  # Specify extra volumes to add to the application pod
   # postgres_extra_volume_mounts: example-value  # Specify volume mounts to be added to Postgres container
   # pg_dump_suffix: example-value  # Additional parameters for the pg_dump command during a migration
-  postgres_init_container_resource_requirements:
-    limits:
+  # postgres_init_container_resource_requirements:
+    # limits:
       # cpu: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # memory: example-value
       # storage: example-value
-  postgres_resource_requirements:
-    limits:
+  # postgres_resource_requirements:
+    # limits:
       # cpu: example-value
       # memory: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # memory: example-value
-  postgres_storage_requirements:
-    limits:
+  # postgres_storage_requirements:
+    # limits:
       # storage: example-value
-    requests:
+    # requests:
       # storage: example-value
 
   # --- Projects persistence ---
@@ -92,13 +92,13 @@ spec:
   # control_plane_ee_image: example-value  # Registry path to the Execution Environment container image to use on control plane pods
   # ee_extra_env: example-value
   # ee_extra_volume_mounts: example-value  # Specify volume mounts to be added to Execution container
-  ee_resource_requirements:
-    limits:
+  # ee_resource_requirements:
+    # limits:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
@@ -147,13 +147,13 @@ spec:
   # --- Web pod ---
   # web_replicas: 0  # Number of web instance replicas
   web_manage_replicas: true  # default; Enables operator control of replicas count for the web deployment when set to 'true' (Only
-  web_resource_requirements:
-    limits:
+  # web_resource_requirements:
+    # limits:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
@@ -181,13 +181,13 @@ spec:
   # --- Task pod ---
   # task_replicas: 0  # Number of task instance replicas
   task_manage_replicas: true  # default; Enables operator control of replicas count for the task deployment when set to 'true' (Onl
-  task_resource_requirements:
-    limits:
+  # task_resource_requirements:
+    # limits:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
@@ -213,13 +213,13 @@ spec:
   # receptor_log_level: example-value  # Set log level of receptor service
 
   # --- Redis pod ---
-  redis_resource_requirements:
-    limits:
+  # redis_resource_requirements:
+    # limits:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
@@ -227,13 +227,13 @@ spec:
   # redis_capabilities: []  # Redis container capabilities
 
   # --- Rsyslog pod ---
-  rsyslog_resource_requirements:
-    limits:
+  # rsyslog_resource_requirements:
+    # limits:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
@@ -244,13 +244,13 @@ spec:
   # rsyslog_command: []
 
   # --- Init container ---
-  init_container_resource_requirements:
-    limits:
+  # init_container_resource_requirements:
+    # limits:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value
       # storage: example-value
-    requests:
+    # requests:
       # cpu: example-value
       # ephemeral-storage: example-value
       # memory: example-value

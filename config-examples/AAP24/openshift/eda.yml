@@ -40,14 +40,14 @@ spec:
     # postgres_ssl_mode: example-value  # Configure PostgreSQL connection sslmode option. Default: "prefer"
     # postgres_storage_class: example-value  # Storage class to use for the PostgreSQL PVC
     # priority_class: example-value  # Assign a pre-existing priority class to the postgres pod
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    storage_requirements:
-      limits:
+    # storage_requirements:
+      # limits:
         # storage: example-value
-      requests:
+      # requests:
         # storage: example-value
     # tolerations: []  # Node tolerations for the database pod.
 
@@ -56,11 +56,11 @@ spec:
     # node_selector: {}  # NodeSelector for the EDA pods.
     # redis_secret: example-value # notsecret  # Secret where the redis configuration can be found. Set this to us your own external Redis 
     replicas: 1  # default; Defines Redis Deployment replicas
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
@@ -100,11 +100,11 @@ spec:
     gunicorn_workers: 2  # default; The number of gunicorn workers for the api. Default: 2
     # node_selector: {}  # NodeSelector for the EDA pods.
     replicas: 1  # default; Size is the size of number of eda-api replicas. Default: 1
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
@@ -114,11 +114,11 @@ spec:
   ui:
     # node_selector: {}  # NodeSelector for the EDA pods.
     replicas: 1  # default; Size is the size of number of eda-ui replicas. Default: 1
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
@@ -128,11 +128,11 @@ spec:
   scheduler:
     # node_selector: {}  # NodeSelector for the EDA pods.
     replicas: 1  # default; Size is the size of number of eda-scheduler replicas. Default: 1
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
@@ -142,11 +142,11 @@ spec:
   worker:
     # node_selector: {}  # NodeSelector for the EDA pods.
     replicas: 2  # default; Size is the size of number of eda-worker replicas. Default: 1
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
@@ -154,11 +154,11 @@ spec:
   default_worker:
     # node_selector: {}  # NodeSelector for the EDA pods.
     replicas: 2  # default; Size is the size of number of eda-default-worker replicas. Default: 1
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
@@ -166,11 +166,11 @@ spec:
   activation_worker:
     # node_selector: {}  # NodeSelector for the EDA pods.
     replicas: 5  # default; Size is the size of number of eda-activation-worker replicas. Default: 5
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
@@ -182,11 +182,11 @@ spec:
     # node_selector: {}  # NodeSelector for the EDA pods.
     # prefix: example-value  # Prefix for the Event Stream URL
     replicas: 1  # default; Size is the size of number of eda-worker replicas. Default: 1
-    resource_requirements:
+    # resource_requirements:
       # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
       # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
       # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
-    strategy:
+    # strategy:
       # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
       # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
     # tolerations: []  # Node tolerations for the EDA pods.
