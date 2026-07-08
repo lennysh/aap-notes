@@ -33,7 +33,7 @@ For 2.4, apply component secret files first, then the component CRs — see the 
 
 ## Regenerating examples
 
-CR example YAML is generated from operator CRD dumps using [generate-aap-cr-examples](https://github.com/lennysh/openshift-playground/tree/main/generate-aap-cr-examples) in **openshift-playground**. CRD dumps are stored under `.crd-dumps/<version>/` (local, not committed).
+CR example YAML is generated from operator CRD dumps using [generate-aap-cr-examples](https://github.com/lennysh/openshift-playground/tree/devel/generate-aap-cr-examples) in **openshift-playground**. CRD dumps are stored under `.crd-dumps/<version>/` (local, not committed).
 
 Each version README includes the exact `generate-aap-cr-examples.py` invocation and output path.
 
