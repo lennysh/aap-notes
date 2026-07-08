@@ -1,0 +1,781 @@
+---
+# AnsibleAutomationPlatform Custom Resource — exhaustive spec example
+# Derived from CRD: aap.ansible.com_ansibleautomationplatforms.yaml
+# Nested spec.controller / spec.hub / spec.eda blocks include every field from the component CRDs.
+# Fields with CRD defaults are set explicitly; unset options are commented with placeholders.
+apiVersion: aap.ansible.com/v1alpha1
+kind: AnsibleAutomationPlatform
+metadata:
+  name: example-aap
+  namespace: aap
+spec:
+
+  # --- Platform secrets ---
+  admin_password_secret: "example-aap-admin-password" # notsecret  # Secret where the admin password can be found
+  db_fields_encryption_secret: "example-aap-secret-key" # notsecret  # Secret where the DB fields encryption key can be found. If not specified, one will be gene
+  # bundle_cacert_secret: example-value # notsecret  # Secret where the trusted Certificate Authority Bundle is stored
+
+  # --- Gateway database ---
+  database:
+    database_secret: "aap-gateway-postgres-configuration" # notsecret  # Secret where the database configuration can be found. Set this to use your own external Po
+    idle_disabled: false  # default; When true, prevents the database from being idled
+    # node_selector: {}  # NodeSelector for the database pod.
+    postgres_data_volume_init: false  # default; Sets permissions on the /var/lib/pgdata/data for postgres container using an init containe
+    # postgres_extra_args: []  # Arguments to pass to postgres process
+    # postgres_init_container_commands: example-value  # Customize the postgres init container commands (Non Openshift)
+    # postgres_keep_pvc_after_upgrade: false  # Specify whether or not to keep the old PVC after PostgreSQL upgrades
+    # postgres_ssl_mode: example-value  # Configure PostgreSQL connection sslmode option. Default: "prefer"
+    # postgres_storage_class: example-value  # Storage class to use for the PostgreSQL PVC
+    # priority_class: example-value  # Assign a pre-existing priority class to the postgres pod
+    # resource_requirements:
+      # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+      # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+      # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+    # storage_requirements:
+      # limits:
+        # storage: example-value
+      # requests:
+        # storage: example-value
+    # tolerations: []  # Node tolerations for the database pod.
+
+  # --- Components ---
+  controller:
+    disabled: false  # Platform-only; set true to skip this component
+    # name: example-controller  # Platform-only; register existing AutomationController CR
+
+    # --- Admin & account ---
+    admin_user: "admin"  # default; Username to use for the admin account
+    # admin_email: example-value  # The admin user email
+    admin_password_secret: "example-controller-admin-password" # notsecret  # Secret where the admin password can be found
+
+    # --- Operator behavior ---
+    auto_upgrade: true  # default; Should AWX instances be automatically upgraded when operator gets upgraded
+    create_preload_data: true  # default; Whether or not to preload data upon instance creation
+    garbage_collect_secrets: false  # default; Whether or not to remove secrets upon instance removal
+    no_log: true  # default; Configure no_log for no_log tasks
+    set_self_labels: true  # default; Maintain some of the recommended `app.kubernetes.io/*` labels on the resource (self)
+    # development_mode: false  # If the deployment should be done in development mode
+    # idle_deployment: false  # Scale down deployments to put AWX into an idle state
+    # deployment_type: example-value  # Name of the deployment type
+    # kind: example-value  # Kind of the deployment type
+    replicas: 1  # default; Number of instance replicas
+    # termination_grace_period_seconds: 0  # Optional duration in seconds pods needs to terminate gracefully
+
+    # --- Secrets & encryption ---
+    secret_key_secret: "example-controller-secret-key" # notsecret  # Secret where the secret key can be found
+    # broadcast_websocket_secret: example-value # notsecret  # Secret where the broadcast websocket secret can be found
+    # bundle_cacert_secret: example-value # notsecret  # Secret where can be found the trusted Certificate Authority Bundle
+    # ldap_cacert_secret: example-value # notsecret  # (Deprecated) Secret where can be found the LDAP trusted Certificate Authority Bundle
+    # ldap_password_secret: example-value # notsecret  # (Deprecated) Secret where can be found the LDAP bind password
+    # ca_trust_bundle: example-value  # Path where the trusted CA bundle is available
+
+    # --- Database (external Postgres) ---
+    postgres_configuration_secret: "controller-postgres-configuration" # notsecret  # Secret where the database configuration can be found
+    # old_postgres_configuration_secret: example-value # notsecret  # Secret where the old database configuration can be found for data migration (DEPRECATED)
+    # postgres_extra_args: []
+    # postgres_annotations: example-value  # Annotations to add to the Postgres deployment.
+    # postgres_image: example-value  # Registry path to the PostgreSQL container to use
+    # postgres_image_version: example-value  # PostgreSQL container image version to use
+    # postgres_keep_pvc_after_upgrade: false  # Specify whether or not to keep the old PVC after PostgreSQL upgrades
+    postgres_keepalives: true  # default; Controls whether client-side TCP keepalives are used for Postgres connections.
+    postgres_keepalives_idle: 5  # default; Controls the number of seconds of inactivity after which TCP should send a keepalive messa
+    postgres_keepalives_interval: 5  # default; Controls the number of seconds after which a TCP keepalive message that is not acknowledge
+    postgres_keepalives_count: 5  # default; Controls the number of TCP keepalives that can be lost before the client's connection to t
+    # postgres_label_selector: example-value  # Label selector used to identify postgres pod for data migration
+    # postgres_priority_class: example-value  # Assign a preexisting priority class to the postgres pod
+    # postgres_selector: example-value  # nodeSelector for the Postgres pods
+    # postgres_storage_class: example-value  # Storage class to use for the PostgreSQL PVC
+    # postgres_tolerations: example-value  # node tolerations for the Postgres pods
+    # postgres_extra_volumes: example-value  # Specify extra volumes to add to the application pod
+    # postgres_extra_volume_mounts: example-value  # Specify volume mounts to be added to Postgres container
+    # pg_dump_suffix: example-value  # Additional parameters for the pg_dump command during a migration
+    # postgres_init_container_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # memory: example-value
+        # storage: example-value
+    # postgres_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # memory: example-value
+      # requests:
+        # cpu: example-value
+        # memory: example-value
+    # postgres_storage_requirements:
+      # limits:
+        # storage: example-value
+      # requests:
+        # storage: example-value
+
+    # --- Projects persistence ---
+    projects_persistence: false  # default; Whether or not the /var/lib/projects directory will be persistent
+    projects_storage_access_mode: "ReadWriteMany"  # default; AccessMode for the /var/lib/projects PersistentVolumeClaim
+    projects_storage_size: "8Gi"  # default; Size for the /var/lib/projects PersistentVolumeClaim
+    # projects_storage_class: example-value  # Storage class for the /var/lib/projects PersistentVolumeClaim
+    # projects_existing_claim: example-value  # PersistentVolumeClaim to mount /var/lib/projects directory
+    # projects_use_existing_claim: example-value  # Using existing PersistentVolumeClaim; enum: _Yes_, _No_
+
+    # --- Execution environments ---
+    ee_pull_credentials_secret: "ee-pull-secret" # notsecret  # Secret where pull credentials for registered ees can be found
+    # ee_images: []  # Registry path to the Execution Environment container to use
+    # control_plane_ee_image: example-value  # Registry path to the Execution Environment container image to use on control plane pods
+    # ee_extra_env: example-value
+    # ee_extra_volume_mounts: example-value  # Specify volume mounts to be added to Execution container
+    # ee_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+
+    # --- Container images ---
+    # image: example-value  # Registry path to the application container to use
+    # image_version: example-value  # Application container image version to use
+    image_pull_policy: "IfNotPresent"  # default; The image pull policy; enum: Always, always, Never, never, IfNotPresent, ifnotpresent
+    # image_pull_secret: example-value  # (Deprecated) Image pull secret for app and database containers
+    # image_pull_secrets: []  # Image pull secrets for app and database containers
+    # init_container_image: example-value  # Registry path to the init container to use
+    # init_container_image_version: example-value  # Init container image version to use
+    # init_projects_container_image: example-value  # Registry path to the init projects container to use
+    # redis_image: example-value  # Registry path to the redis container to use
+    # redis_image_version: example-value  # Redis container image version to use
+    # metrics_utility_image: example-value  # Metrics-Utility Image
+    # metrics_utility_image_version: example-value  # Metrics-Utility Image Version
+    # metrics_utility_image_pull_policy: example-value  # Metrics-Utility Image PullPolicy
+
+    # --- Ingress / Route / LoadBalancer ---
+    ingress_type: "Route"  # default; The ingress type to use to reach the deployed instance; enum: none, Ingress, ingress, Route, route
+    # ingress_api_version: example-value  # The Ingress API version to use
+    # ingress_class_name: example-value  # The name of ingress class to use instead of the cluster default.
+    # ingress_controller: example-value  # Special configuration for specific Ingress Controllers
+    # ingress_path: example-value  # The ingress path used to reach the deployed service
+    # ingress_path_type: example-value  # The ingress path type for the deployed service
+    # ingress_annotations: example-value  # Annotations to add to the Ingress Controller
+    # ingress_hosts: []  # Ingress hostnames of the instance
+    # ingress_tls_secret: example-value # notsecret  # (Deprecated) Secret where the Ingress TLS secret can be found
+    # route_api_version: example-value  # The route API version to use
+    # route_host: example-value  # The DNS to use to points to the instance
+    route_tls_secret: "controller-route-tls-secret" # notsecret  # Secret where the TLS related credentials are stored
+    route_tls_termination_mechanism: "Edge"  # default; The secure TLS termination mechanism to use; enum: Edge, edge, Passthrough, passthrough
+    loadbalancer_class: ""  # default; Class of LoadBalancer to use
+    loadbalancer_ip: ""  # default; Assign LoadBalancer IP address
+    loadbalancer_port: 80  # default; Port to use for the loadbalancer
+    loadbalancer_protocol: "http"  # default; Protocol to use for the loadbalancer; enum: http, https
+    # nodeport_port: 0  # Port to use for the nodeport
+    # service_type: example-value  # The service type to be used on the deployed instance; enum: LoadBalancer, loadbalancer, ClusterIP, clusterip, NodePort, nodeport
+    # hostname: example-value  # (Deprecated) The hostname of the instance
+    # public_base_url: example-value  # Public base URL
+    # api_urlpattern_prefix: example-value  # An optional configuration to add a prefix in the API URL path
+    # api_version: example-value  # apiVersion of the deployment type
+
+    # --- Web pod ---
+    # web_replicas: 0  # Number of web instance replicas
+    web_manage_replicas: true  # default; Enables operator control of replicas count for the web deployment when set to 'true'
+    # web_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+    # web_extra_env: example-value
+    # web_extra_volume_mounts: example-value  # Specify volume mounts to be added to the Web container
+    # web_args: []
+    # web_command: []
+    # web_annotations: example-value  # Web deployment annotations. This will override the general annotations parameter for the W
+    # web_node_selector: example-value  # nodeSelector for the web pods
+    # web_tolerations: example-value  # node tolerations for the web pods
+    # web_topology_spread_constraints: example-value  # topology rule(s) for the web pods
+    # web_affinity: {}
+    web_liveness_failure_threshold: 3  # default; Number of consecutive failure events to identify failure of web pod
+    web_liveness_initial_delay: 5  # default; Initial delay before starting liveness checks on web pod
+    web_liveness_period: 0  # default; Time period in seconds between each liveness check for the web pod
+    web_liveness_timeout: 1  # default; Number of seconds to wait for a probe response from web pod
+    web_readiness_failure_threshold: 3  # default; Number of consecutive failure events to identify failure of web pod
+    web_readiness_initial_delay: 20  # default; Initial delay before starting readiness checks on web pod
+    web_readiness_period: 0  # default; Time period in seconds between each readiness check for the web pod
+    web_readiness_timeout: 1  # default; Number of seconds to wait for a probe response from web pod
+    # uwsgi_processes: 0  # Set the number of uwsgi processes to run in a web container
+    # uwsgi_listen_queue_size: 0  # Set the socket listen queue size for uwsgi
+
+    # --- Task pod ---
+    # task_replicas: 0  # Number of task instance replicas
+    task_manage_replicas: true  # default; Enables operator control of replicas count for the task deployment when set to 'true'
+    # task_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+    # task_extra_env: example-value
+    # task_extra_volume_mounts: example-value  # Specify volume mounts to be added to Task container
+    # task_args: []
+    # task_command: []
+    # task_annotations: example-value  # Task deployment annotations. This will override the general annotations parameter for the 
+    # task_node_selector: example-value  # nodeSelector for the task pods
+    # task_tolerations: example-value  # node tolerations for the task pods
+    # task_topology_spread_constraints: example-value  # topology rule(s) for the task pods
+    # task_affinity: {}
+    task_privileged: false  # default; If a privileged security context should be enabled
+    task_liveness_failure_threshold: 3  # default; Number of consecutive failure events to identify failure of task pod
+    task_liveness_initial_delay: 5  # default; Initial delay before starting liveness checks on task pod
+    task_liveness_period: 0  # default; Time period in seconds between each liveness check for the task pod
+    task_liveness_timeout: 1  # default; Number of seconds to wait for a probe response from task pod
+    task_readiness_failure_threshold: 3  # default; Number of consecutive failure events to identify failure of task pod
+    task_readiness_initial_delay: 20  # default; Initial delay before starting readiness checks on task pod
+    task_readiness_period: 0  # default; Time period in seconds between each readiness check for the task pod
+    task_readiness_timeout: 1  # default; Number of seconds to wait for a probe response from task pod
+    # receptor_log_level: example-value  # Set log level of receptor service
+
+    # --- Redis pod ---
+    # redis_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+    # redis_capabilities: []  # Redis container capabilities
+
+    # --- Rsyslog pod ---
+    # rsyslog_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+    # rsyslog_extra_env: example-value
+    # rsyslog_extra_volume_mounts: example-value  # Specify volume mounts to be added to the Rsyslog container
+    # rsyslog_args: []
+    # rsyslog_command: []
+
+    # --- Init container ---
+    # init_container_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # ephemeral-storage: example-value
+        # memory: example-value
+        # storage: example-value
+    # init_container_extra_commands: example-value  # Extra commands for the init container
+    # init_container_extra_volume_mounts: example-value  # Specify volume mounts to be added to the init container
+
+    # --- Metrics utility ---
+    metrics_utility_enabled: false  # default; Enable metrics utility
+    metrics_utility_console_enabled: false  # default; Enable metrics utility shipping to Red Hat Hybrid Cloud Console
+    metrics_utility_cronjob_gather_schedule: "@hourly"  # default; Metrics-Utility Gather Data CronJob Schedule
+    metrics_utility_cronjob_report_schedule: "@monthly"  # default; Metrics-Utility Report CronJob Schedule
+    # metrics_utility_pvc_claim: example-value  # Metrics-Utility PVC Claim
+    metrics_utility_pvc_claim_size: "5Gi"  # default; Metrics-Utility PVC Claim Size
+    # metrics_utility_pvc_claim_storage_class: example-value  # Metrics-Utility PVC Claim Storage Class
+    # metrics_utility_secret: example-value # notsecret  # Metrics-Utility Secret
+    # metrics_utility_configmap: example-value  # Metrics-Utility ConfigMap
+    # metrics_utility_ship_target: example-value  # Metrics-Utility Ship Target
+
+    # --- Nginx tuning ---
+    # nginx_worker_processes: 0  # Set the number of workers for nginx
+    # nginx_worker_connections: 0  # Set the number of connections per worker for nginx
+    # nginx_worker_cpu_affinity: example-value  # Set the CPU affinity for nginx workers
+    # nginx_listen_queue_size: 0  # Set the socket listen queue size for nginx (defaults to same as uwsgi)
+
+    # --- Security & session ---
+    # csrf_cookie_secure: example-value  # Set csrf cookie secure mode for web
+    # session_cookie_secure: example-value  # Set session cookie secure mode for web
+    # security_context_settings: {}  # Key/values that will be set under the pod-level securityContext field
+    # control_plane_priority_class: example-value  # Assign a preexisting priority class to the control plane pods
+
+    # --- Scheduling & labels ---
+    # node_selector: example-value  # nodeSelector for the pods
+    # tolerations: example-value  # node tolerations for the pods
+    # topology_spread_constraints: example-value  # topology rule(s) for the pods
+    # affinity: {}
+    # additional_labels: []  # Additional labels defined on the resource, which should be propagated to child resources
+    # annotations: example-value  # Common annotations for both Web and Task deployments.
+    # service_account_annotations: example-value  # ServiceAccount annotations
+    # service_annotations: example-value  # Annotations to add to the service
+    # service_labels: example-value  # Additional labels to apply to the service
+
+    # --- Extra configuration ---
+    # extra_settings: []  # Extra settings to specify for AWX
+    # extra_settings_files: {}
+    # extra_volumes: example-value  # Specify extra volumes to add to the application pod
+    # host_aliases: []  # HostAliases for app containers
+    ipv6_disabled: false  # default; Disable web container's nginx ipv6 listener
+    # postgres_data_volume_init: false  # Sets permissions on the /var/lib/pgdata/data for postgres container using an init containe
+    # postgres_init_container_commands: example-value  # Customize the postgres init container commands (Non Openshift)
+    # postgres_security_context_settings: {}  # Key/values that will be set under the pod-level securityContext field
+  hub:
+    disabled: false  # Platform-only; set true to skip this component
+    # name: example-hub  # Platform-only; register existing AutomationHub CR
+
+    # --- Secrets & encryption ---
+    db_fields_encryption_secret: "example-hub-secret-key" # notsecret  # Secret where the Fernet symmetric encryption key is stored
+    # sso_secret: example-value # notsecret  # Secret where Single Sign-on configuration can be found
+    # bundle_cacert_secret: example-value # notsecret  # Secret where the trusted Certificate Authority Bundle is stored
+    # container_token_secret: example-value # notsecret  # Secret where the container token certificates are stored
+    # signing_secret: example-value # notsecret  # Secret where the signing certificates are stored
+    # signing_scripts_configmap: example-value  # ConfigMap where the signing scripts are stored
+    # admin_password_secret: example-value # notsecret  # Secret where the administrator password can be found
+
+    # --- Database (external Postgres) ---
+    postgres_configuration_secret: "hub-postgres-configuration" # notsecret  # Secret where the database configuration can be found
+    # postgres_migrant_configuration_secret: example-value # notsecret  # Secret where the old database configuration can be found for data migration (DEPRECATED)
+    # postgres_extra_args: []
+    # postgres_host_auth_method: example-value  # The method to be used for database host authentication
+    # postgres_initdb_args: example-value  # The arguments to be passed to initialize the database
+    # postgres_image: example-value  # Registry path to the PostgreSQL container to use
+    # postgres_keep_pvc_after_upgrade: false  # Specify whether or not to keep the old PVC after PostgreSQL upgrades
+    # postgres_label_selector: example-value  # Label selector used to identify postgres pod for executing migration
+    # postgres_selector: example-value  # nodeSelector for the Postgres pods
+    # postgres_storage_class: example-value  # Storage class to use for the PostgreSQL PVC
+    # postgres_tolerations: example-value  # node tolerations for the Postgres pods
+    postgres_resource_requirements:
+      limits:
+        cpu: "1000m"  # default
+        memory: "8Gi"  # default
+      requests:
+        cpu: "500m"  # default
+        memory: "2Gi"  # default
+    postgres_storage_requirements:
+      limits:
+        storage: "50Gi"  # default
+      requests:
+        storage: "8Gi"  # default
+    force_drop_db: false  # default; (Deprecated) Force drop the database of the new Galaxy before restoring. USE WITH CAUTION!
+
+    # --- Object / file storage ---
+    storage_type: "S3"  # Configuration for the storage type to be utilized
+    object_storage_s3_secret: "hub-s3-storage-secret" # notsecret  # The secret for S3 compliant object storage configuration.
+    # object_storage_azure_secret: example-value # notsecret  # The secret for Azure blob storage configuration.
+    file_storage_access_mode: "ReadWriteMany"  # default; The file storage access mode.; enum: ReadWriteMany, ReadWriteOnce
+    file_storage_size: "100Gi"  # default; The size of the file storage; for example 100Gi.
+    # file_storage_storage_class: example-value  # Storage class to use for the file persistentVolumeClaim
+
+    # --- Container images ---
+    # image: example-value  # The image name (repo name) for the galaxy image.
+    # image_version: example-value  # The image version for the galaxy image.
+    # image_web: example-value  # The image name (repo name) for the galaxy-ui webserver image.
+    # image_web_version: example-value  # The image version for the galaxy-ui webserver image.
+    image_pull_policy: "IfNotPresent"  # default; Image pull policy for container image; enum: IfNotPresent, Always, Never
+    # image_pull_secret: example-value  # The image pull secret (deprecated. Use image_pull_secrets instead)
+    # image_pull_secrets: []  # The image pull secrets
+    # redis_image: example-value  # The image name for the redis image.
+
+    # --- Ingress / Route / LoadBalancer ---
+    ingress_type: "Route"  # default; The ingress type to use to reach the deployed instance; enum: none, Ingress, ingress, Route, route, LoadBalancer
+    # ingress_annotations: example-value  # Annotations to add to the ingress
+    # ingress_tls_secret: example-value  # Secret where the ingress TLS secret can be found
+    # route_host: example-value  # The DNS to use to points to the instance
+    route_tls_secret: "hub-route-tls-secret" # notsecret  # Secret where the TLS related credentials are stored
+    route_tls_termination_mechanism: "Edge"  # default; The secure TLS termination mechanism to use; enum: Edge, edge, Passthrough, passthrough
+    loadbalancer_port: 80  # default; Port to use for the loadbalancer
+    loadbalancer_protocol: "http"  # default; Protocol to use for the loadbalancer; enum: http, https
+    # nodeport_port: example-value  # Provide requested port value
+    # hostname: example-value  # The hostname of the instance
+    public_base_url: ""  # default; Public base URL
+
+    # --- Gunicorn / proxy timeouts ---
+    gunicorn_api_workers: 2  # default; The number of gunicorn workers to use for the api.
+    gunicorn_content_workers: 2  # default; The number of gunicorn workers to use for the content.
+    gunicorn_timeout: 10  # default; The timeout for the gunicorn process.
+    haproxy_timeout: "180s"  # default; HAProxy timeout
+    nginx_client_max_body_size: "10m"  # default; NGINX client max body size
+    nginx_proxy_connect_timeout: "15s"  # default; NGINX proxy connect timeout
+    nginx_proxy_read_timeout: "15s"  # default; NGINX proxy read timeout
+    nginx_proxy_send_timeout: "15s"  # default; NGINX proxy send timeout
+
+    # --- API deployment ---
+    api:
+      log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      replicas: 1  # default; The number of replicas for the deployment.
+      # resource_requirements:
+        # limits: {}
+        # requests: {}
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+    # --- Content deployment ---
+    content:
+      log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      replicas: 2  # default; The number of replicas for the deployment.
+      # resource_requirements:
+        # limits: {}
+        # requests: {}
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+    # --- Redis deployment ---
+    redis:
+      log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      replicas: 1  # default; (Deprecated) The number of replicas for redis is 1
+      # resource_requirements:
+        # limits: {}
+        # requests: {}
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+    # redis_storage_class: example-value  # Storage class to use for the Redis PVC
+    # redis_storage_size: example-value  # Storage size to use for the Redis PVC
+    # redis_resource_requirements:
+      # limits:
+        # cpu: example-value
+        # memory: example-value
+        # storage: example-value
+      # requests:
+        # cpu: example-value
+        # memory: example-value
+        # storage: example-value
+
+    # --- Resource manager deployment ---
+    resource_manager:
+      replicas: 1  # default; The number of replicas for the deployment.
+      # resource_requirements:
+        # limits: {}
+        # requests: {}
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+    # --- Web deployment ---
+    web:
+      replicas: 1  # default; The number of replicas for the deployment.
+      # resource_requirements:
+        # limits: {}
+        # requests: {}
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+    # --- Worker deployment ---
+    worker:
+      replicas: 2  # default; The number of replicas for the deployment.
+      # resource_requirements:
+        # limits: {}
+        # requests: {}
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+
+    # --- Operator behavior ---
+    no_log: true  # default; Configure no_log for no_log tasks
+    # idle_deployment: false  # Scale down deployments to put Galaxy into an idle state
+    # deployment_type: example-value  # Name of the deployment type
+
+    # --- Scheduling ---
+    # node_selector: example-value  # nodeSelector for the Galaxy pods
+    # tolerations: example-value  # node tolerations for the Galaxy pods
+    # topology_spread_constraints: example-value  # topology rule(s) for the pods
+    # affinity: {}
+    # service_annotations: example-value  # Annotations to add to the service
+
+    # --- Extra configuration ---
+    # pulp_settings: {}
+    # ingress_class_name: example-value  # The name of ingress class to use instead of the cluster default.
+    # postgres_data_volume_init: false  # Sets permissions on the /var/lib/pgdata/data for postgres container using an init containe
+    # postgres_init_container_commands: example-value  # Customize the postgres init container commands (Non Openshift)
+    # redis_data_persistence: false  # Specify whether or not to have a redis pvc
+  eda:
+    disabled: false  # Platform-only; set true to skip this component
+    # name: example-eda  # Platform-only; register existing EDA CR
+
+    # --- Admin & account ---
+    admin_user: "admin"  # default; Username to use for the admin account
+    admin_password_secret: "example-eda-admin-password" # notsecret  # Secret where the admin password can be found. If not specified, one will be generated.
+
+    # --- Operator behavior ---
+    no_log: true  # default; Configure no_log for no log tasks
+    # set_self_labels: false  # Maintain some of the recommended `app.kubernetes.io/*` labels on the resource (self)
+    # force_drop_db: false  # Force drop the database before restoring. USE WITH CAUTION!
+    # idle_deployment: false  # Scale down deployments to put EDA into an idle state
+    # ui_disabled: false  # Disable the UI for a headless EDA deployment (only API endpoints)
+    # ipv6_disabled: false  # Disable UI container's nginx ipv6 listener
+    public_base_url: ""  # default; Public base URL for EDA
+
+    # --- Secrets & encryption ---
+    db_fields_encryption_secret: "example-eda-secret-key" # notsecret  # Secret where the DB fields encryption key can be found. If not specified, one will be gene
+    # bundle_cacert_secret: example-value # notsecret  # Secret where the trusted Certificate Authority Bundle is stored
+
+    # --- Controller integration ---
+    automation_server_url: "https://example-controller-aap.apps.example.com"  # URL of the Automation Controller instance to run ansible jobs against
+    # automation_server_ssl_verify: example-value  # SSL Verify (yes, no) for the Automation Controller instance
+
+    # --- Database ---
+    database:
+      database_secret: "eda-postgres-configuration" # notsecret  # Secret where the database configuration can be found. Set this to us your own external Pos
+      # node_selector: {}  # NodeSelector for the database pod.
+      postgres_data_volume_init: false  # default; Sets permissions on the /var/lib/pgdata/data for postgres container using an init containe
+      # postgres_extra_args: []  # Arguments to pass to postgres process
+      # postgres_init_container_commands: example-value  # Customize the postgres init container commands (Non Openshift)
+      # postgres_keep_pvc_after_upgrade: false  # Specify whether or not to keep the old PVC after PostgreSQL upgrades
+      # postgres_ssl_mode: example-value  # Configure PostgreSQL connection sslmode option. Default: "prefer"
+      # postgres_storage_class: example-value  # Storage class to use for the PostgreSQL PVC
+      # priority_class: example-value  # Assign a pre-existing priority class to the postgres pod
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # storage_requirements:
+        # limits:
+          # storage: example-value
+        # requests:
+          # storage: example-value
+      # tolerations: []  # Node tolerations for the database pod.
+
+    # --- Redis ---
+    redis:
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      # redis_secret: example-value # notsecret  # Secret where the redis configuration can be found. Set this to us your own external Redis 
+      replicas: 1  # default; Defines Redis Deployment replicas
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+    # redis_image: example-value  # Registry path to Redis container image to use
+    # redis_image_version: example-value  # Redis container image tag or version to use
+
+    # --- Container images ---
+    # image: example-value  # Registry path to API container image to use
+    # image_version: example-value  # API container image tag or version to use
+    # image_web: example-value  # Registry path to UI container image to use
+    # image_web_version: example-value  # UI container image tag or version to use
+    image_pull_policy: "IfNotPresent"  # default; The image pull policy; enum: Always, always, Never, never, IfNotPresent, ifnotpresent
+    # image_pull_secrets: []  # Image pull secrets for app and database containers
+    # postgres_image: example-value  # Registry path to the PostgreSQL container to use
+    # postgres_image_version: example-value  # PostgreSQL container image version to use
+
+    # --- Ingress / Route / LoadBalancer ---
+    ingress_type: "Route"  # default; The ingress type to use to reach the deployed instance; enum: None, none, Ingress, ingress, Route, route
+    # ingress_api_version: example-value  # The Ingress API version to use
+    # ingress_class_name: example-value  # The name of ingress class to use instead of the cluster default.
+    # ingress_path: example-value  # The ingress path used to reach the deployed service
+    # ingress_path_type: example-value  # The ingress path type for the deployed service
+    # ingress_annotations: example-value  # Annotations to add to the Ingress Controller
+    # ingress_tls_secret: example-value # notsecret  # Secret where the Ingress TLS secret can be found
+    # route_api_version: example-value  # The route API version to use
+    # route_host: example-value  # The DNS to use to points to the instance
+    route_tls_secret: "eda-route-tls-secret" # notsecret  # Secret where the TLS related credentials are stored
+    # route_tls_termination_mechanism: example-value  # The secure TLS termination mechanism to use; enum: Edge, edge, Passthrough, passthrough
+    # loadbalancer_port: 0  # Port to use for the loadbalancer
+    # loadbalancer_protocol: example-value  # Protocol to use for the loadbalancer; enum: http, https
+    # nodeport_port: 0  # Port to use for the nodeport
+    # service_type: example-value  # The service type to be used on the deployed instance; enum: LoadBalancer, loadbalancer, ClusterIP, clusterip, NodePort, nodeport
+    # hostname: example-value  # The hostname of the instance
+
+    # --- API deployment ---
+    api:
+      gunicorn_workers: 2  # default; The number of gunicorn workers for the api. Default: 2
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      replicas: 1  # default; Size is the size of number of eda-api replicas. Default: 1
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+      # topology_spread_constraints: []  # Topology rule(s) for the pods.
+
+    # --- UI deployment ---
+    ui:
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      replicas: 1  # default; Size is the size of number of eda-ui replicas. Default: 1
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+      # topology_spread_constraints: []  # Topology rule(s) for the pods.
+
+    # --- Scheduler deployment ---
+    scheduler:
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      replicas: 2  # default; Size is the size of number of eda-scheduler replicas. Default: 2
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+      # topology_spread_constraints: []  # Topology rule(s) for the pods.
+
+    # --- Worker deployments ---
+    worker:
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      replicas: 2  # default; Size is the size of number of eda-worker replicas. Default: 2
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+      # topology_spread_constraints: []  # Topology rule(s) for the pods.
+    default_worker:
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      replicas: 2  # default; Size is the size of number of eda-default-worker replicas. Default: 2
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+      # topology_spread_constraints: []  # Topology rule(s) for the pods.
+    activation_worker:
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      replicas: 2  # default; Size is the size of number of eda-activation-worker replicas. Default: 2
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+      # topology_spread_constraints: []  # Topology rule(s) for the pods.
+
+    # --- Event stream deployment ---
+    event_stream:
+      gunicorn_workers: 2  # default; The number of gunicorn workers for the api. Default: 2
+      # node_selector: {}  # NodeSelector for the EDA pods.
+      # prefix: example-value  # Prefix for the Event Stream URL
+      replicas: 1  # default; Size is the size of number of eda-worker replicas. Default: 1
+      # resource_requirements:
+        # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+        # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+        # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+      # strategy:
+        # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+        # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+      # tolerations: []  # Node tolerations for the EDA pods.
+      # topology_spread_constraints: []  # Topology rule(s) for the pods.
+
+    # --- Scheduling & labels ---
+    # service_account_annotations: example-value  # ServiceAccount annotations
+    # additional_labels: []  # Additional labels defined on the resource, which should be propagated to child resources
+
+    # --- Extra configuration ---
+    # extra_settings: []  # Environment variables to configure the application-level settings
+    # old_postgres_configuration_secret: example-value  # Secret where the old database configuration can be found for data migration (DEPRECATED)
+    # pg_dump_suffix: example-value  # Additional parameters for the pg_dump command during a migration
+    # postgres_label_selector: example-value  # Label selector used to identify postgres pod for data migration
+  # lightspeed:
+  #   disabled: true  # Opt-in; disabled by default
+  #   # Any AnsibleLightspeed.spec field is valid here (see lightspeed CRD dump)
+
+  # --- Gateway API deployment ---
+  api:
+    log_level: "INFO"  # default; The log level for the deployment.; enum: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    # node_selector: {}  # NodeSelector for the gateway pods.
+    replicas: 1  # default; The number of replicas for the deployment.
+    # resource_requirements:
+      # limits: {}
+      # requests: {}
+    # security_context: {}  # Settings to apply to the securityContext field of the api container.
+    # strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+    # tolerations: []  # Node tolerations for the gateway pods.
+    # topology_spread_constraints: []  # Topology rule(s) for the pods.
+
+  # --- Platform images ---
+  # image: example-value  # AAP Gateway container image
+  # image_version: example-value  # AAP Gateway container image version (tag)
+  # image_proxy: example-value  # AAP Gateway Proxy container image
+  # image_proxy_version: example-value  # AAP Gateway Proxy container image version (tag)
+  image_pull_policy: "IfNotPresent"  # The image pull policy
+  # image_pull_secrets: []  # Image pull secrets for app and database containers
+  # postgres_image: example-value  # Registry path to the PostgreSQL container to use
+  # postgres_image_version: example-value  # PostgreSQL container image version to use
+  # redhat_registry: example-value  # Default Redhat Container Image Registry
+  # redhat_registry_ns: example-value  # Default Redhat Container Image Registry Namespace
+
+  # --- Ingress / Route / LoadBalancer ---
+  ingress_type: "Route"  # The ingress type to use to reach the deployed instance
+  # ingress_api_version: example-value  # The Ingress API version to use
+  # ingress_class_name: example-value  # The name of ingress class to use instead of the cluster default.
+  # ingress_path: example-value  # The ingress path used to reach the deployed service
+  # ingress_path_type: example-value  # The ingress path type for the deployed service
+  # ingress_annotations: example-value  # Annotations to add to the Ingress Controller
+  # ingress_tls_secret: example-value # notsecret  # Secret where the Ingress TLS secret can be found
+  # route_api_version: example-value  # The route API version to use
+  # route_host: example-value  # The DNS to use to points to the instance
+  route_tls_secret: "aap-route-tls-secret" # notsecret  # Secret where the TLS related credentials are stored
+  route_tls_termination_mechanism: "Edge"  # default; The secure TLS termination mechanism to use; enum: Edge, edge, Passthrough, passthrough
+  # route_annotations: example-value  # Annotations to add to the route
+  # loadbalancer_port: 0  # Port to use for the loadbalancer
+  # loadbalancer_protocol: example-value  # Protocol to use for the loadbalancer; enum: http, https
+  # service_type: example-value  # The service type to be used on the deployed instance; enum: LoadBalancer, loadbalancer, ClusterIP, clusterip, NodePort, nodeport
+  # service_annotations: example-value  # Annotations to add to the load balancer service
+  # service_account_annotations: example-value  # ServiceAccount annotations
+  # hostname: example-value  # Override default hostname of the Ansible Automation Platform
+  # public_base_url: example-value  # Public base URL for AAP
+
+  # --- Redis cache ---
+  # redis:
+    # eda_redis_secret: example-value # notsecret  # Secret where the EDA redis configuration can be found. Set this to use your own external r
+    # node_selector: {}  # NodeSelector for the Redis pods.
+    # redis_secret: example-value # notsecret  # Secret where the redis configuration can be found. Set this to use your own external redis
+    # replicas: 0  # Defines Redis Deployment replicas
+    # resource_requirements:
+      # claims: []  # Claims lists the names of resources, defined in spec.resourceClaims, that are used by this
+      # limits: {}  # Limits describes the maximum amount of compute resources allowed. More info: https://kuber
+      # requests: {}  # Requests describes the minimum amount of compute resources required. If Requests is omitte
+    # strategy:
+      # rollingUpdate: {}  # Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- 
+      # type: example-value  # Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+    # tolerations: []  # Node tolerations for the Redis pods.
+  # redis_image: example-value  # Registry path to the redis container to use
+  # redis_image_version: example-value  # Redis container image version to use
+  redis_mode: "standalone"  # default; Redis Mode; enum: cluster, standalone
+
+  # --- Operator behavior ---
+  no_log: true  # default; Configure no_log for no_log tasks
+  # idle_aap: false  # Scale down replicas to put AAP into an idle mode
+  # extra_settings: []  # Environment variables to configure the application-level settings
+  # feature_flags: {}  # Platform Feature Flags Dictionary
