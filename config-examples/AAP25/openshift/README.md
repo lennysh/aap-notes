@@ -2,7 +2,7 @@
 
 Example Kubernetes manifests for deploying Ansible Automation Platform **2.5** with the Red Hat AAP Operator on OpenShift.
 
-For containerized deployment on Linux hosts, see [AAP 2.5 containerized inventories](../containerized/README.md).
+For containerized deployment on Linux hosts, see [AAP 2.5 containerized inventories](../containerized/README.md). For RPM deployment, see [AAP 2.5 RPM inventories](../rpm/README.md).
 
 ## 2.5+ deployment model
 

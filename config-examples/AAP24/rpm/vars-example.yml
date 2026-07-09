@@ -1,0 +1,111 @@
+---
+# AAP 2.4 RPM installer optional variables — YAML-only (lists and dictionaries)
+#
+# Copy to vars.yml and pass: ./setup.sh -e @vars.yml
+# Regenerate: python3 scripts/build_rpm_inventory.py --version 2.4
+
+
+# Bundle / offline install
+# -----------------------------------------------------
+
+# Package versions
+# -----------------------------------------------------
+
+# Automation Controller
+# -----------------------------------------------------
+
+# Controller nginx TLS protocols; list — use vars.yml
+# nginx_tls_protocols:
+#   - example-entry
+
+# Custom Controller nginx headers; list — use vars.yml
+# nginx_user_headers:
+#   - example-entry
+
+# Receptor / execution
+# -----------------------------------------------------
+
+# Certificate authority
+# -----------------------------------------------------
+
+# Extra SAN records for component certs; list — use vars.yml
+# aap_service_san_records:
+#   - example-entry
+
+# Automation Hub (extra)
+# -----------------------------------------------------
+
+# Custom Hub nginx headers; list — use vars.yml
+# automationhub_user_headers:
+#   - example-entry
+
+# Extra LDAP settings dictionary; use vars.yml
+# ldap_extra_settings:
+#   AUTH_LDAP_USER_FLAGS_BY_GROUP: {}
+
+# Automation EDA Controller (extra)
+# -----------------------------------------------------
+
+# Custom EDA nginx headers; list — use vars.yml
+# automationedacontroller_user_headers:
+#   - example-entry
+
+# Extra allowed hostnames for EDA; list — use vars.yml
+# automationedacontroller_allowed_hostnames:
+#   - example-entry
+
+# Trusted CSRF origins; list — use vars.yml
+# automationedacontroller_trusted_origins:
+#   - example-entry
+
+# Allowlisted EDA rulebook plugins; list — use vars.yml
+# automationedacontroller_safe_plugins:
+#   - example-entry
+
+# Decision environments to configure in EDA; list — use vars.yml
+# decision_environments:
+#   - name: my-de
+#     image: registry.example.org/my-de:latest
+
+# Execution environments
+# -----------------------------------------------------
+
+# Additional execution environment images; list — use vars.yml
+# extra_images:
+#   - name: my-custom-ee
+#     image: registry.example.org/my-ee:latest
+
+# Execution environment image list override; list — use vars.yml
+# ee_images:
+#   - name: my-custom-ee
+#     image: registry.example.org/my-ee:latest
+
+# Decision environment images; list — use vars.yml
+# de_images:
+#   - name: my-custom-ee
+#     image: registry.example.org/my-ee:latest
+
+# Default execution environments for jobs; list — use vars.yml
+# global_job_execution_environments:
+#   - name: Default execution environment
+#     image: registry.redhat.io/ansible-automation-platform-24/ee-supported-rhel8:latest
+
+# Repository / subscription
+# -----------------------------------------------------
+
+# Additional RHSM repos to enable; list — use vars.yml
+# redhat_rhsm_repos:
+#   - ansible-automation-platform
+
+# SSO (2.4 only)
+# -----------------------------------------------------
+
+# PostgreSQL (managed, 2.4)
+# -----------------------------------------------------
+
+# Insights / misc
+# -----------------------------------------------------
+
+# Extra nginx http block directives; list — use vars.yml
+# nginx_user_http_config:
+#   - example-entry

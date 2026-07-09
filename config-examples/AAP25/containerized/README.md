@@ -4,7 +4,7 @@ Reference Ansible inventories for the **AAP 2.5 containerized installer** (`ansi
 
 Verified against installer dump: `ansible-automation-platform-containerized-setup-2.5-25`.
 
-For OpenShift operator manifests, see [AAP 2.5 on OpenShift](../openshift/README.md). For maintenance when refreshing after installer updates, see [CONTAINERIZED_INVENTORY_CONTEXT.md](../../CONTAINERIZED_INVENTORY_CONTEXT.md).
+For OpenShift operator manifests, see [AAP 2.5 on OpenShift](../openshift/README.md). For RPM deployment, see [AAP 2.5 RPM inventories](../rpm/README.md). For maintenance when refreshing after installer updates, see [CONTAINERIZED_INVENTORY_CONTEXT.md](../../CONTAINERIZED_INVENTORY_CONTEXT.md).
 
 ## Files
 

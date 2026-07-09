@@ -1,0 +1,219 @@
+# AAP 2.5 RPM installer inventory reference
+# Enabled lines below match the upstream ansible-automation-platform-setup-2.5-23/inventory.
+# All other supported variables are listed commented out for reference.
+# Install guide: https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/rpm_installation
+
+# This section is for your AAP Gateway host(s)
+# -----------------------------------------------------
+[automationgateway]
+gateway1.example.org
+gateway2.example.org
+
+# This section is for your AAP Controller host(s)
+# -----------------------------------------------------
+[automationcontroller]
+controller1.example.org
+controller2.example.org
+
+[automationcontroller:vars]
+peers=execution_nodes
+
+# This section is for your AAP Execution host(s)
+# -----------------------------------------------------
+[execution_nodes]
+hop1.example.org node_type='hop'
+exec1.example.org
+exec2.example.org
+
+# This section is for your AAP Automation Hub host(s)
+# -----------------------------------------------------
+[automationhub]
+hub1.example.org
+hub2.example.org
+
+# This section is for your AAP EDA Controller host(s)
+# -----------------------------------------------------
+[automationedacontroller]
+eda1.example.org
+eda2.example.org
+
+[redis]
+gateway1.example.org
+gateway2.example.org
+hub1.example.org
+hub2.example.org
+eda1.example.org
+eda2.example.org
+
+[all:vars]
+
+# Common variables
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/rpm_installation/appendix-inventory-files-vars#ref-general-inventory-variables
+# -----------------------------------------------------
+registry_username=<your RHN username>
+registry_password=<your RHN password>
+
+# AAP Gateway
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/rpm_installation/appendix-inventory-files-vars#ref-gateway-variables
+# -----------------------------------------------------
+automationgateway_admin_password=<set your own>
+automationgateway_pg_host=<set your own>
+automationgateway_pg_database=<set your own>
+automationgateway_pg_username=<set your own>
+automationgateway_pg_password=<set your own>
+
+# AAP Controller
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/rpm_installation/appendix-inventory-files-vars#ref-controller-variables
+# -----------------------------------------------------
+admin_password=<set your own>
+pg_host=<set your own>
+pg_database=<set your own>
+pg_username=<set your own>
+pg_password=<set your own>
+
+# AAP Automation Hub
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/rpm_installation/appendix-inventory-files-vars#ref-hub-variables
+# -----------------------------------------------------
+automationhub_admin_password=<set your own>
+automationhub_pg_host=<set your own>
+automationhub_pg_database=<set your own>
+automationhub_pg_username=<set your own>
+automationhub_pg_password=<set your own>
+
+# AAP EDA Controller
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/rpm_installation/appendix-inventory-files-vars#event-driven-ansible-controller
+# -----------------------------------------------------
+automationedacontroller_admin_password=<set your own>
+automationedacontroller_pg_host=<set your own>
+automationedacontroller_pg_database=<set your own>
+automationedacontroller_pg_username=<set your own>
+automationedacontroller_pg_password=<set your own>
+
+# Additional optional variables from installer role defaults
+# (not in the upstream inventory template). Complex types: vars-example.yml
+# -----------------------------------------------------
+
+# Bundle / offline install
+# -----------------------------------------------------
+# bundle_install=false  # Use offline bundle installer instead of pulling from registry/repos
+# bundle_install_folder=/var/lib/ansible-automation-platform-bundle  # Directory containing the offline bundle
+
+# Package versions
+# -----------------------------------------------------
+# controller_package_version=  # Pin Automation Controller RPM version (empty = latest from repos)
+# automationhub_package_version=  # Pin Automation Hub RPM version
+# automationedacontroller_package_version=  # Pin Automation EDA Controller RPM version
+
+# Automation Controller
+# -----------------------------------------------------
+# admin_username=admin  # Controller admin username
+# admin_email=admin@example.com  # Controller admin email
+# create_preload_data=true  # Load default job templates and preload data on first install
+# controller_nginx_tls_files_remote=false  # Controller TLS cert/key files are on the remote host
+# automationcontroller_client_max_body_size=5m  # Controller nginx client_max_body_size
+# nginx_disable_https=false  # Serve Controller over HTTP only
+# nginx_disable_hsts=false  # Disable HSTS on Controller nginx
+# nginx_http_port=80  # Controller nginx HTTP port
+# nginx_https_port=443  # Controller nginx HTTPS port
+# nginx_tls_protocols=  # Controller nginx TLS protocols; list — use vars.yml; see vars-example.yml
+# nginx_user_headers=  # Custom Controller nginx headers; list — use vars.yml; see vars-example.yml
+
+# Receptor / execution
+# -----------------------------------------------------
+# receptor_listener_protocol=tcp  # Receptor listener protocol (tcp or udp)
+# node_type=hybrid  # Host var on controller/execution_nodes: control|hybrid|hop|execution
+
+# Certificate authority
+# -----------------------------------------------------
+# aap_ca_cert_file=/path/to/ca.crt  # Path to custom CA certificate for signing component certs
+# aap_ca_key_file=/path/to/ca.key  # Path to custom CA private key
+# aap_ca_cert_files_remote=false  # CA cert/key files are on remote hosts
+# aap_ca_regenerate=false  # Regenerate the internally managed CA key pair
+# aap_service_regen_cert=false  # Regenerate component certificates signed by internal CA
+# aap_service_san_records=  # Extra SAN records for component certs; list — use vars.yml; see vars-example.yml
+
+# Automation Hub (extra)
+# -----------------------------------------------------
+# automationhub_user_headers=  # Custom Hub nginx headers; list — use vars.yml; see vars-example.yml
+# automationhub_nginx_tls_files_remote=false  # Hub TLS cert/key files are on the remote host
+# automationhub_enable_api_access_log=false  # Log all Hub API access to /var/log/galaxy_api_access.log
+# automationhub_enable_unauthenticated_collection_access=false  # Allow read-only collection access without login
+# automationhub_enable_unauthenticated_collection_download=false  # Allow anonymous collection downloads
+# automationhub_ldap_user_search_scope=SUBTREE  # LDAP user search scope (SUBTREE, ONELEVEL, BASE)
+# automationhub_ldap_group_search_scope=SUBTREE  # LDAP group search scope
+# automationhub_ldap_user_search_filter=(uid=%(user)s)  # LDAP user search filter
+# automationhub_ldap_group_search_filter=(objectClass=Group)  # LDAP group search filter
+# automationhub_ldap_group_type_class=django_auth_ldap.config:GroupOfNamesType  # LDAP group type class for django-auth-ldap
+# ldap_extra_settings=  # Extra LDAP settings dictionary; use vars.yml; see vars-example.yml
+
+# Automation EDA Controller (extra)
+# -----------------------------------------------------
+# automationedacontroller_admin_username=admin  # EDA admin username
+# automationedacontroller_admin_email=admin@example.com  # EDA admin email
+# automationedacontroller_disable_https=false  # Serve EDA over HTTP only
+# automationedacontroller_disable_hsts=false  # Disable HSTS on EDA nginx
+# automationedacontroller_nginx_tls_files_remote=false  # EDA TLS cert/key files are on the remote host
+# automationedacontroller_http_port=80  # EDA nginx HTTP port
+# automationedacontroller_https_port=443  # EDA nginx HTTPS port
+# automationedacontroller_user_headers=  # Custom EDA nginx headers; list — use vars.yml; see vars-example.yml
+# automationedacontroller_allowed_hostnames=  # Extra allowed hostnames for EDA; list — use vars.yml; see vars-example.yml
+# automationedacontroller_trusted_origins=  # Trusted CSRF origins; list — use vars.yml; see vars-example.yml
+# automationedacontroller_safe_plugins=  # Allowlisted EDA rulebook plugins; list — use vars.yml; see vars-example.yml
+# automationedacontroller_max_running_activations=12  # Max running activations per worker
+# automationedacontroller_gunicorn_workers=5  # EDA API gunicorn workers
+# automationedacontroller_activation_workers=5  # EDA ansible-rulebook activation workers
+# automationedacontroller_debug=false  # Enable Django debug mode for EDA workers
+# automationedacontroller_websocket_ssl_verify=true  # Verify SSL for Daphne websocket connections
+# decision_environments=  # Decision environments to configure in EDA; list — use vars.yml; see vars-example.yml
+
+# Execution environments
+# -----------------------------------------------------
+# ee_image_base=registry.redhat.io/ansible-automation-platform-25/  # Base URL/path for execution environment images
+# extra_images=  # Additional execution environment images; list — use vars.yml; see vars-example.yml
+# ee_images=  # Execution environment image list override; list — use vars.yml; see vars-example.yml
+# de_images=  # Decision environment images; list — use vars.yml; see vars-example.yml
+# global_job_execution_environments=  # Default execution environments for jobs; list — use vars.yml; see vars-example.yml
+
+# Repository / subscription
+# -----------------------------------------------------
+# rpm_from_single_repo=false  # Install all components from ansible-automation-platform repo only
+# redhat_rhsm_repos=  # Additional RHSM repos to enable; list — use vars.yml; see vars-example.yml
+# registry_url=registry.redhat.io  # Container registry URL for execution environment images
+# registry_verify_ssl=true  # Verify TLS when pulling from container registry
+
+# Automation Gateway (2.5+)
+# -----------------------------------------------------
+# automationgateway_admin_username=admin  # Gateway admin username
+# automationgateway_admin_email=admin@example.com  # Gateway admin email
+# automationgateway_disable_https=false  # Serve Gateway over HTTP only
+# automationgateway_disable_hsts=false  # Disable HSTS on Gateway nginx
+# automationgateway_tls_files_remote=false  # Gateway TLS cert/key files are on the remote host
+# automationgateway_user_headers=  # Custom Gateway nginx headers; list — use vars.yml; see vars-example.yml
+# automationgateway_pg_port=5432  # Gateway PostgreSQL port
+# automationgateway_pg_sslmode=prefer  # Gateway PostgreSQL sslmode
+# automationgateway_redis_host=gateway1.example.org  # Redis hostname for Gateway (default: first gateway host)
+# automationgateway_http_port=8080  # Gateway nginx HTTP port
+# automationgateway_https_port=8443  # Gateway nginx HTTPS port
+# client_request_timeout=30  # End-user HTTP request timeout in seconds (minimum 10)
+
+# Redis cluster (2.5+)
+# -----------------------------------------------------
+# redis_cluster_ip=10.0.0.1  # Bind IP for Redis cluster nodes
+# redis_tls_cert=/path/to/redis.crt  # Redis server TLS certificate path
+# redis_tls_key=/path/to/redis.key  # Redis server TLS private key path
+# redis_tls_files_remote=false  # Redis TLS files are on remote hosts
+
+# PostgreSQL connection (optional)
+# -----------------------------------------------------
+# pg_port=5432  # Controller PostgreSQL port
+# pg_sslmode=prefer  # Controller PostgreSQL sslmode
+# automationhub_pg_port=5432  # Hub PostgreSQL port
+# automationhub_pg_sslmode=prefer  # Hub PostgreSQL sslmode
+# automationedacontroller_pg_port=5432  # EDA PostgreSQL port
+# automationedacontroller_pg_sslmode=prefer  # EDA PostgreSQL sslmode
+
+# Insights / misc
+# -----------------------------------------------------
+# ignore_preflight_errors=false  # Continue install when preflight checks report warnings
+# component_firewall_type=none  # Firewall integration: none, firewalld, or iptables
+# nginx_user_http_config=  # Extra nginx http block directives; list — use vars.yml; see vars-example.yml

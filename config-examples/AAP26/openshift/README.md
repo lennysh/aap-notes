@@ -2,7 +2,7 @@
 
 Same **platform-first** model as 2.5 — one `AnsibleAutomationPlatform` CR with all component options under `spec.controller`, `spec.hub`, and `spec.eda`. See [AAP 2.5 README](../AAP25/openshift/README.md) for the full explanation.
 
-For containerized deployment on Linux hosts, see [AAP 2.6 containerized inventories](../containerized/README.md).
+For containerized deployment on Linux hosts, see [AAP 2.6 containerized inventories](../containerized/README.md). For RPM deployment, see [AAP 2.6 RPM inventories](../rpm/README.md).
 
 ## Files
 

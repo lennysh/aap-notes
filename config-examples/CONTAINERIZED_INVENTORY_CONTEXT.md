@@ -35,7 +35,14 @@ OpenShift operator examples live in the sibling `AAP{XY}/openshift/` folder unde
 
 ## Authoritative sources (check in this order)
 
-When building or updating a version, extract the matching installer tarball under `.installer-dumps/{version}/` and review:
+RPM and containerized installers use different tarball names:
+
+| Method | Example dump path |
+|--------|-------------------|
+| RPM | `.installer-dumps/2.4/ansible-automation-platform-setup-2.4-16` |
+| Containerized | `.installer-dumps/2.6/ansible-automation-platform-containerized-setup-2.6-10` |
+
+When building or updating a version, extract the matching installer under `.installer-dumps/{version}/` and review:
 
 | Source | Path (inside extracted installer) | What to extract |
 |--------|-----------------------------------|-----------------|

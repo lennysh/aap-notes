@@ -2,6 +2,8 @@
 
 Example Kubernetes manifests for deploying Ansible Automation Platform 2.4 with the Red Hat AAP Operator on OpenShift. Secrets are split from Custom Resources so credentials stay out of CR specs.
 
+For RPM deployment on RHEL hosts, see [AAP 2.4 RPM inventory](../rpm/README.md).
+
 These are reference examples — replace placeholder values, trim secrets you do not need, and validate against your environment before applying.
 
 All manifests target the `aap` namespace. Create it (or change `namespace` everywhere) before deploying. Do **not** deploy AAP into the `default` namespace.
