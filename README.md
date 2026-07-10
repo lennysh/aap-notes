@@ -1,29 +1,35 @@
 # AAP Notes
 
-Personal reference material for [Ansible Automation Platform (AAP)](https://www.redhat.com/en/technologies/management/ansible). This repo was formerly **aap-rbac-notes**; RBAC content now lives under `rbac/`, and additional topics are organized in their own folders as they are added.
+Personal reference material for [Ansible Automation Platform (AAP)](https://www.redhat.com/en/technologies/management/ansible). This repo was formerly **aap-rbac-notes**; RBAC content lives under `rbac/`.
 
 ## Contents
 
 | Folder | Description |
 |--------|-------------|
-| [`rbac/`](rbac/) | RBAC concepts, role catalogs, hierarchy diagrams, organizational design guidance, and agent-oriented lookup material |
-| [`config-examples/`](config-examples/) | Example deployment configuration (not production-ready templates). **OpenShift:** AAP 2.4 uses component CRs; 2.5+ uses the `AnsibleAutomationPlatform` platform CR. **RPM:** annotated inventories for 2.4–2.6 (no RPM for 2.7). **Containerized:** annotated inventories for 2.5, 2.6, and 2.7. |
+| [`rbac/`](rbac/) | RBAC concepts, role catalogs, hierarchy diagrams, organizational design, agent lookup |
+| [`installer/`](installer/) | **RPM & containerized** — inventories, vars examples, install playbook task reference |
+| [`openshift/`](openshift/) | **OpenShift operator** — CR and secret examples (not install playbooks) |
+
+Local Red Hat inputs (gitignored at repo root): [`.installer-dumps/`](.installer-dumps/) (installer tarballs), [`.crd-dumps/`](.crd-dumps/) (OpenShift operator CRDs).
 
 ## Quick links
 
-- **RBAC overview and file index** — [`rbac/README.md`](rbac/README.md)
-- **Config examples index** — [`config-examples/README.md`](config-examples/README.md)
-- **OpenShift operator examples** — [`AAP 2.4`](config-examples/AAP24/openshift/README.md) · [`AAP 2.5`](config-examples/AAP25/openshift/README.md) · [`AAP 2.6`](config-examples/AAP26/openshift/README.md) · [`AAP 2.7`](config-examples/AAP27/openshift/README.md)
-- **RPM installer examples** — [`AAP 2.4`](config-examples/AAP24/rpm/README.md) · [`AAP 2.5`](config-examples/AAP25/rpm/README.md) · [`AAP 2.6`](config-examples/AAP26/rpm/README.md) (no RPM for 2.7)
-- **Containerized installer examples** — [`AAP 2.5`](config-examples/AAP25/containerized/README.md) · [`AAP 2.6`](config-examples/AAP26/containerized/README.md) · [`AAP 2.7`](config-examples/AAP27/containerized/README.md)
+- **RBAC overview** — [`rbac/README.md`](rbac/README.md)
+- **Installer index** — [`installer/README.md`](installer/README.md)
+- **OpenShift index** — [`openshift/README.md`](openshift/README.md)
+- **OpenShift examples** — [2.4](openshift/AAP24/README.md) · [2.5](openshift/AAP25/README.md) · [2.6](openshift/AAP26/README.md) · [2.7](openshift/AAP27/README.md)
+- **RPM inventories** — [2.4](installer/AAP24/rpm/README.md) · [2.5](installer/AAP25/rpm/README.md) · [2.6](installer/AAP26/rpm/README.md) (no RPM for 2.7)
+- **Containerized inventories** — [2.5](installer/AAP25/containerized/README.md) · [2.6](installer/AAP26/containerized/README.md) · [2.7](installer/AAP27/containerized/README.md)
 
 ## Using with Cursor / other agents
 
-Add this repo to your workspace, then `@`-mention the doc that matches your question:
+`@`-mention the folder that matches your question:
 
-- RBAC goals and role lookup → `rbac/AAP-RBAC-AGENT-CONTEXT.md`
-- OpenShift secrets and CR wiring → `config-examples/AAP24/openshift/` (or the matching `AAP25` / `AAP26` / `AAP27` folder for your version)
-- RPM installer inventory options → `config-examples/AAP24/rpm/`, `AAP25/rpm/`, or `AAP26/rpm/` (or `config-examples/RPM_INVENTORY_CONTEXT.md` when refreshing). No RPM installer for 2.7.
-- Containerized installer inventory options → `config-examples/AAP25/containerized/`, `AAP26/containerized/`, or `AAP27/containerized/` (or `config-examples/CONTAINERIZED_INVENTORY_CONTEXT.md` when refreshing inventories)
+| Question | `@`-mention |
+|----------|-------------|
+| RBAC / roles | `rbac/AAP-RBAC-AGENT-CONTEXT.md` |
+| Inventory or install playbook tasks | `installer/AAP25/containerized/` (match your version/method) |
+| OpenShift CRs / secrets | `openshift/AAP27/` (match your version) |
+| Refreshing inventories after a Red Hat update | `installer/maintainer/CONTAINERIZED_INVENTORY_CONTEXT.md` or `RPM_INVENTORY_CONTEXT.md` |
 
-Most material under `rbac/` was derived from local forks of upstream AAP component repos; see [`rbac/README.md`](rbac/README.md) for the source list.
+Most material under `rbac/` was derived from local forks of upstream AAP component repos; see [`rbac/README.md`](rbac/README.md).

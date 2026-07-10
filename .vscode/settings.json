@@ -6,5 +6,6 @@
     "*.yaml": "yaml",
     "**/playbooks/**/*.yml": "ansible",
     "**/playbooks/**/*.yaml": "ansible"
-  }
+  },
+  "markdown.extension.tableFormatter.enabled": false
 }
