@@ -13,6 +13,7 @@ For OpenShift operator manifests, see [AAP 2.6 on OpenShift](../../openshift/AAP
 | [inventory-example](inventory-example) | `inventory` | Enterprise — separate hosts, external PostgreSQL, Redis cluster |
 | [inventory-growth-example](inventory-growth-example) | `inventory-growth` | Container growth — single host, managed `[database]`, `redis_mode=standalone` |
 | [vars-example.yml](vars-example.yml) | — | YAML-only options (lists/dicts); all commented; use with `-e @vars.yml` |
+| [extra-settings.md](extra-settings.md) | — | All `*_extra_settings` inventory vars — shapes, examples, documented knobs |
 | [install-playbook-tasks.md](install-playbook-tasks.md) | `playbooks/install.yml` | Install playbook tasks in execution order (recursive role expansion) |
 
 ## Enabled settings (unchanged from upstream)

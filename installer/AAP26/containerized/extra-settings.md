@@ -1,13 +1,22 @@
-# AAP 2.7 — Containerized `*_extra_settings` reference
+# AAP 2.6 — Containerized `*_extra_settings` reference
 
-Personal TSE notes for every inventory “extra settings” pass-through in the **AAP 2.7 containerized installer**.
+Personal TSE notes for every inventory “extra settings” pass-through in the **AAP 2.6 containerized installer**.
 
-Verified against lab clone `aap-27/installer/containerized_installer` (aligned with dump `ansible-automation-platform-containerized-setup-2.7-2`).
+Verified against lab clone `aap-26/installer/containerized_installer` (aligned with dump `ansible-automation-platform-containerized-setup-2.6-10`).
 
-These variables are **not closed enums**. Most accept arbitrary keys that the target component understands. Prefer dedicated inventory vars (DB, nginx, TLS, storage) when they exist; use `*_extra_settings` for app/Django/Pulp/PostgreSQL knobs the installer does not expose directly.
+These variables are **not closed enums**. Most accept arbitrary keys that the target component understands. Prefer dedicated inventory vars (DB, nginx, TLS, storage, Redis) when they exist; use `*_extra_settings` for app/Django/Pulp/PostgreSQL knobs the installer does not expose directly.
 
 Related files in this folder: [README.md](README.md) · [vars-example.yml](vars-example.yml).  
-Sibling for 2.6: [AAP26/containerized/extra-settings.md](../../AAP26/containerized/extra-settings.md).
+Sibling for 2.7: [AAP27/containerized/extra-settings.md](../../AAP27/containerized/extra-settings.md).
+
+### Notable vs 2.7
+
+| Area | 2.6 | 2.7 |
+|---|---|---|
+| EDA extras surface | Includes **Redis/MQ** settings (`MQ_*`, `RQ_REDIS_PREFIX`, TTLs) | Event **persistence / stream DB** settings instead |
+| MCP built-in env | `BASE_URL`, `IGNORE_CERTIFICATE_ERRORS`, `ALLOW_WRITE_OPERATIONS`, `INTERNAL_EMAIL_DOMAINS` | Same **plus** `MCP_SERVER_URL` |
+| Metrics Service lab tree | `automation-dashboard/automation-reports/` | `automation-dashboard/metrics-service/` |
+| Inventory var set | Same names / shapes as 2.7 for these extras | — |
 
 ---
 
@@ -80,8 +89,8 @@ Installer comment in the template: custom values you want to survive upgrades mu
 
 Useful local references (lab tree):
 
-- `aap-27/controller/automation-controller/awx/settings/production_defaults.py`
-- `aap-27/controller/automation-controller/awx/settings/defaults.py` (large conf registry; mostly **DB-backed** UI settings — prefer API/UI for those)
+- `aap-26/controller/automation-controller/awx/settings/production_defaults.py`
+- `aap-26/controller/automation-controller/awx/settings/defaults.py` (large conf registry; mostly **DB-backed** UI settings — prefer API/UI for those)
 
 Common inventory-side examples (not exhaustive):
 
@@ -93,7 +102,7 @@ Common inventory-side examples (not exhaustive):
 | `CSRF_TRUSTED_ORIGINS` | Prefer not to fight installer-managed gateway origins |
 | `LOGGING[...]` / nested keys | Possible; easy to break — merge carefully |
 
-**Avoid overriding** installer-managed blocks already written earlier in `settings.py.j2` (DB, Redis, JWT/gateway integration, `OPTIONAL_*` URL prefixes) unless you have a clear need — extras are appended last, so they *can* override.
+**Avoid overriding** installer-managed blocks already written earlier in `settings.py.j2` (DB, Redis, JWT/gateway integration) unless you have a clear need — extras are appended last, so they *can* override.
 
 ---
 
@@ -154,7 +163,7 @@ hub_extra_settings:
 
 ### Documented Galaxy options
 
-From Hub docs `aap-27/hub/automation-hub/docs/config/options.md` (intended customization surface):
+From Hub docs `aap-26/hub/automation-hub/docs/config/options.md` (intended customization surface):
 
 | Setting | Default / notes |
 |---|---|
@@ -212,8 +221,8 @@ Or merge dict with `"dynaconf_merge": True`.
 
 Any Pulp/Django/`galaxy_ng` setting can be injected. Local sources:
 
-- Defaults: `aap-27/hub/automation-hub/galaxy_ng/app/settings.py`
-- Pulpcore settings reference: `aap-27/hub/pulp/pulpcore/docs/admin/reference/settings.md`
+- Defaults: `aap-26/hub/automation-hub/galaxy_ng/app/settings.py`
+- Pulpcore settings notes: `aap-26/hub/pulp/pulpcore/staging_docs/admin/learn/settings.md` (and related staging_docs)
 
 Prefer dedicated inventory vars for signing (`hub_collection_signing`, etc.), storage backend, DB, and nginx.
 
@@ -275,13 +284,15 @@ eda_extra_settings:
     value: 120
 ```
 
-### Useful keys from EDA defaults
+### Useful keys from EDA defaults (2.6)
 
-Source: `aap-27/eda/automation-eda-controller/src/aap_eda/settings/defaults.py` (open-ended; these are app defaults):
+Source: `aap-26/eda/automation-eda-controller/src/aap_eda/settings/defaults.py` (open-ended).
 
-| Setting | Default (code) |
+**Rulebook / activation (same family as 2.7):**
+
+| Setting | Notes |
 |---|---|
-| `RULEBOOK_READINESS_TIMEOUT_SECONDS` | `60` (README example overrides to `120`) |
+| `RULEBOOK_READINESS_TIMEOUT_SECONDS` | default `60` in code; README example `120` |
 | `RULEBOOK_LIVENESS_CHECK_SECONDS` | — |
 | `RULEBOOK_LIVENESS_TIMEOUT_SECONDS` | — |
 | `ACTIVATION_RESTART_SECONDS_ON_COMPLETE` | — |
@@ -292,14 +303,26 @@ Source: `aap-27/eda/automation-eda-controller/src/aap_eda/settings/defaults.py` 
 | `SESSION_COOKIE_AGE` | — |
 | `JWT_ACCESS_TOKEN_LIFETIME_MINUTES` | — |
 | `JWT_REFRESH_TOKEN_LIFETIME_DAYS` | — |
-| `PODMAN_MEM_LIMIT` | — |
-| `PODMAN_ENV_VARS` | — |
-| `PODMAN_EXTRA_ARGS` | — |
+| `PODMAN_MEM_LIMIT` / `PODMAN_ENV_VARS` / `PODMAN_EXTRA_ARGS` | — |
 | `EVENT_STREAM_REQUIRE_TRUSTED_PROXY` | — |
 | `MAX_PG_NOTIFY_MESSAGE_SIZE` | — |
-| `AUTOMATION_ANALYTICS_GATHER_INTERVAL` | — |
 
-Prefer dedicated inventory vars for EDA DB / event-stream / event-persistence (`eda_pg_*`, `eda_event_stream_pg_*`, `eda_event_persistence_*`) and nginx.
+**2.6-specific Redis / message-queue surface** (prefer dedicated `eda_redis_*` inventory vars when present):
+
+| Setting | Notes |
+|---|---|
+| `MQ_HOST` / `MQ_PORT` / `MQ_DB` | Redis connection |
+| `MQ_USER` / `MQ_USER_PASSWORD` | Redis auth |
+| `MQ_TLS` | TLS enable |
+| `MQ_CLIENT_CACERT_PATH` / `MQ_CLIENT_CERT_PATH` / `MQ_CLIENT_KEY_PATH` | TLS material |
+| `MQ_UNIX_SOCKET_PATH` | Unix socket |
+| `MQ_REDIS_HA_CLUSTER_HOSTS` | HA cluster hosts |
+| `MQ_SOCKET_TIMEOUT` / `MQ_SOCKET_CONNECT_TIMEOUT` / `MQ_SOCKET_KEEP_ALIVE` | Socket tuning |
+| `MQ_CLUSTER_ERROR_RETRY_ATTEMPTS` | Cluster retry |
+| `RQ_REDIS_PREFIX` | RQ key prefix |
+| `DEFAULT_RESULT_TTL` / `DEFAULT_FAILURE_TTL` | Result retention |
+
+Prefer dedicated inventory vars for EDA DB, Redis (`eda_redis_*` in 2.6), and nginx.
 
 ---
 
@@ -319,7 +342,7 @@ gateway_extra_settings:
 
 ### Useful keys from Gateway defaults
 
-Source: `aap-27/gateway/automation-gateway/aap_gateway_api/defaults.py` (subset; open-ended Django/DAB surface):
+Source: `aap-26/gateway/automation-gateway/aap_gateway_api/defaults.py` (subset; open-ended Django/DAB surface):
 
 | Setting | Notes |
 |---|---|
@@ -335,8 +358,6 @@ Source: `aap-27/gateway/automation-gateway/aap_gateway_api/defaults.py` (subset;
 | `RUNTIME_FEATURE_FLAGS` | Feature flags dict |
 | `SECURE_PROXY_SSL_HEADER` | Proxy SSL header |
 
-OIDC-related `OAUTH2_PROVIDER__*` merges also exist in Gateway code (`oidc_provider.py`); prefer documented patterns if changing OIDC.
-
 ---
 
 ## `automationmetrics_extra_settings`
@@ -349,24 +370,19 @@ OIDC-related `OAUTH2_PROVIDER__*` merges also exist in Gateway code (`oidc_provi
 
 ```yaml
 automationmetrics_extra_settings:
-  - setting: TASK_TIMEOUT
-    value: 300
+  - setting: LOG_LEVEL
+    value: DEBUG
 ```
 
-### Useful keys from Metrics Service defaults
+Installer already sets (do not casually override): `ALLOWED_HOSTS`, `URL_PREFIX` (`/api/metrics`), `DATABASES__*`, `CSRF_TRUSTED_ORIGINS`, `RESOURCE_SERVER__*`, `ANSIBLE_BASE_JWT_*`.
 
-Source: `aap-27/automation-dashboard/metrics-service/apps/settings/defaults.py` (+ production overlays):
+### Local reference in 2.6 lab tree
 
-| Setting | Notes |
-|---|---|
-| `TASK_TIMEOUT` | Task timeout |
-| `JOBEVENT_ROW_LIMIT` | Job-event row limit |
-| `JOBEVENT_JOB_LIMIT` | Job-event job limit |
-| `FEATURE` | Feature toggles |
-| `URL_PREFIX` | URL prefix |
-| `DASHBOARD_COLLECTION` | Dashboard collection |
-| `CSRF_TRUSTED_ORIGINS` | Usually installer-managed |
-| `RESOURCE_SERVER__*` / `ANSIBLE_BASE_JWT_*` | Prefer not to fight gateway integration |
+The 2.6 clone under `aap-26/automation-dashboard/` is **`automation-reports`** (not the later `metrics-service` layout used in 2.7). Useful starting point:
+
+- `aap-26/automation-dashboard/automation-reports/src/backend/django_config/settings.py`
+
+Treat extras as open-ended Dynaconf/Django keys for the metrics image; validate against the running container’s settings if a key is uncertain.
 
 ---
 
@@ -386,7 +402,7 @@ lightspeed_extra_settings:
     value: True
 ```
 
-Open-ended Django settings for the wisdom/Lightspeed service. Installer already sets JWT/gateway, DB, WCA/chatbot-related flags from dedicated inventory vars (`lightspeed_wca_*`, `lightspeed_chatbot_*`, etc.) — prefer those first.
+Open-ended Django settings for the wisdom/Lightspeed service. Prefer dedicated inventory vars (`lightspeed_wca_*`, `lightspeed_chatbot_*`, etc.) first.
 
 ---
 
@@ -408,7 +424,7 @@ lightspeed_chatbot_agent_extra_settings:
   chatbot_temperature_override: 1.0
 ```
 
-Model extras are most relevant when `lightspeed_chatbot_default_provider` is `azure` (README). Keys are provider-config fields for the chatbot stack, not Django settings. There is no installer-side allowlist — valid keys depend on the selected provider type (`rhoai` / `openai` / `azure`).
+Model extras are most relevant when `lightspeed_chatbot_default_provider` is `azure` (README). Keys are provider-config fields for the chatbot stack, not Django settings. No installer-side allowlist — valid keys depend on the selected provider type (`rhoai` / `openai` / `azure`).
 
 ---
 
@@ -426,19 +442,18 @@ mcp_extra_settings:
     value: some_value
 ```
 
-Built-in env (already set by the role — override only if intentional):
+Built-in env in **2.6** (already set by the role — override only if intentional):
 
 | Env | Source |
 |---|---|
 | `BASE_URL` | `mcp_public_base_url` or gateway proxy URL |
-| `MCP_SERVER_URL` | instance URL |
 | `IGNORE_CERTIFICATE_ERRORS` | `mcp_ignore_certificate_errors` |
 | `ALLOW_WRITE_OPERATIONS` | `mcp_allow_write_operations` |
 | `INTERNAL_EMAIL_DOMAINS` | `mcp_internal_email_domains` |
 
 Extras are `combine()`’d on top of that map. Prefer dedicated MCP inventory vars when present.
 
-> Note: `vars-example.yml` currently shows a Gateway-style OAuth example under `mcp_extra_settings`; that is a copy-paste placeholder and is **not** meaningful for MCP env injection.
+> Note: some `vars-example.yml` placeholders may show Gateway-style OAuth under `mcp_extra_settings`; that is **not** meaningful for MCP env injection.
 
 ---
 
@@ -466,7 +481,7 @@ Prefer dedicated inventory vars when they exist:
 - `postgresql_log_destination`
 - TLS cert/key vars
 
-Any other valid PostgreSQL GUC can be passed here (work_mem, log_*, wal_*, etc.) — validate against the PostgreSQL major version shipped with the 2.7 containerized installer.
+Any other valid PostgreSQL GUC can be passed here — validate against the PostgreSQL major version shipped with the 2.6 containerized installer.
 
 ---
 
@@ -474,16 +489,17 @@ Any other valid PostgreSQL GUC can be passed here (work_mem, log_*, wal_*, etc.)
 
 1. **List vs dict** — App extras (Controller/Hub/EDA/Gateway/Metrics/Lightspeed/MCP/PG) are lists of `{setting, value}`. Storage + chatbot model/agent extras are plain dicts.
 2. **Last-write wins** — List-style extras are usually appended at the end of the generated settings file, so they can override installer defaults.
-3. **Do not use extras for secrets the installer already wires** — DB passwords, secret keys, TLS paths, registry creds belong in their dedicated vars.
+3. **Do not use extras for secrets the installer already wires** — DB passwords, secret keys, TLS paths, registry creds, Redis passwords belong in their dedicated vars.
 4. **metrics-utility is special** — env file format + hard required report fields when enabled.
 5. **Hub storage extras are separate** — `hub_azure_extra_settings` / `hub_s3_extra_settings` are not substitutes for `hub_extra_settings`.
-6. **When stuck** — search the component defaults/docs under `aap-27/` rather than inventing key names from general product knowledge.
+6. **EDA Redis in 2.6** — prefer `eda_redis_*` inventory vars; only fall back to `eda_extra_settings` `MQ_*` when needed.
+7. **When stuck** — search the component defaults/docs under `aap-26/` rather than inventing key names from general product knowledge.
 
 ---
 
 ## Source map (lab)
 
-| Topic | Path under `aap-27/` |
+| Topic | Path under `aap-26/` |
 |---|---|
 | Installer README tables/examples | `installer/containerized_installer/README.md` |
 | Controller settings template | `installer/containerized_installer/roles/automationcontroller/templates/settings.py.j2` |
@@ -492,5 +508,5 @@ Any other valid PostgreSQL GUC can be passed here (work_mem, log_*, wal_*, etc.)
 | Hub feature flags | `hub/automation-hub/docs/config/featureflags.md` |
 | EDA defaults | `eda/automation-eda-controller/src/aap_eda/settings/defaults.py` |
 | Gateway defaults | `gateway/automation-gateway/aap_gateway_api/defaults.py` |
-| Metrics Service defaults | `automation-dashboard/metrics-service/apps/settings/defaults.py` |
-| Pulpcore settings reference | `hub/pulp/pulpcore/docs/admin/reference/settings.md` |
+| Metrics / dashboard (2.6 layout) | `automation-dashboard/automation-reports/src/backend/django_config/settings.py` |
+| Pulpcore settings notes | `hub/pulp/pulpcore/staging_docs/admin/learn/settings.md` |

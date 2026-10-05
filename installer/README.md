@@ -22,7 +22,7 @@ installer/
         ├── inventory-example
         ├── inventory-growth-example   # containerized only
         ├── vars-example.yml
-        ├── extra-settings.md          # 2.7+ — *_extra_settings catalog
+        ├── extra-settings.md          # 2.6+ — *_extra_settings catalog
         ├── install-playbook-tasks.md  # generated from install.yml
         └── README.md
 ```
@@ -33,7 +33,7 @@ installer/
 |-----|-----|---------------|-----------|
 | 2.4 | [AAP24/rpm](AAP24/rpm/README.md) | — | [openshift/AAP24](../openshift/AAP24/README.md) |
 | 2.5 | [AAP25/rpm](AAP25/rpm/README.md) | [AAP25/containerized](AAP25/containerized/README.md) | [openshift/AAP25](../openshift/AAP25/README.md) |
-| 2.6 | [AAP26/rpm](AAP26/rpm/README.md) | [AAP26/containerized](AAP26/containerized/README.md) | [openshift/AAP26](../openshift/AAP26/README.md) |
+| 2.6 | [AAP26/rpm](AAP26/rpm/README.md) | [AAP26/containerized](AAP26/containerized/README.md) · [`extra-settings`](AAP26/containerized/extra-settings.md) | [openshift/AAP26](../openshift/AAP26/README.md) |
 | 2.7 | — | [AAP27/containerized](AAP27/containerized/README.md) · [`extra-settings`](AAP27/containerized/extra-settings.md) | [openshift/AAP27](../openshift/AAP27/README.md) |
 
 ## Scripts
