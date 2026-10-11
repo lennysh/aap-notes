@@ -197,6 +197,108 @@ Equivalent intent to classic `AUTH_LDAP_REQUIRE_GROUP`.
 2. Trigger **Based on groups**, one group, condition either value.
 3. Leave revoke off if you only want to **add** members when they match (non-match leaves existing membership alone unless another map / remove-users policy clears it).
 
+### Groups delivered as a multi-value `groups` **attribute** (common IdP / OIDC case)
+
+Some customers do **not** (or not only) use the authenticator’s dedicated groups channel. Instead the IdP puts membership in a user attribute named `groups` (a list), for example:
+
+```json
+{
+  "email": "alice@example.com",
+  "groups": ["aap-org-a", "aap-team-ops", "aap-team-sre"]
+}
+```
+
+`create_claims` evaluates two **different** inputs:
+
+| Trigger UI | Code input | Use when |
+|------------|------------|----------|
+| **Based on groups** | `groups: list[str]` passed beside attrs (LDAP membership, OIDC `GROUPS CLAIM` / `groups_claim` extraction, etc.) | Membership was extracted into the authenticator’s groups list |
+| **Based on attributes** | Keys inside `attrs` / `extra_data` (including a key literally named `groups`) | Membership only appears as an attribute list |
+
+If the customer maps against the attribute list, they must use **Based on attributes**, attribute name `groups` — **not** “Based on groups.” Those are not interchangeable unless the authenticator also copies that claim into the groups channel.
+
+#### One team map per group value (typical pattern)
+
+They create **separate** Team / Organization maps, each looking for one string in that list:
+
+**Map A — Team Ops**
+
+| Field | Value |
+|-------|--------|
+| Authentication mapping | Team |
+| When to apply the rule | Based on attributes |
+| How to apply the rule | **at least one** |
+| Attribute | `groups` |
+| Comparison | `equals` (or `contains` if you need substring match) |
+| Value | `aap-team-ops` |
+
+API shape:
+
+```json
+{
+  "name": "team-ops-from-groups-attr",
+  "map_type": "team",
+  "organization": "Org A",
+  "team": "Ops",
+  "role": "Team Member",
+  "revoke": false,
+  "triggers": {
+    "attributes": {
+      "join_condition": "or",
+      "groups": { "equals": "aap-team-ops" }
+    }
+  }
+}
+```
+
+**Map B — Team SRE** (same pattern, value `aap-team-sre`, different team target).
+
+With Alice’s attrs above:
+
+| Map | `join_condition` | Result | Why |
+|-----|------------------|--------|-----|
+| Team Ops | **at least one** (`or`) | ALLOW → add to Ops | Any list element may equal `aap-team-ops` |
+| Team SRE | **at least one** (`or`) | ALLOW → add to SRE | Same for `aap-team-sre` |
+| Team Ops | **all** (`and`) | **SKIP** | `and` requires **every** value in `groups` to equal `aap-team-ops`; Alice also has `aap-org-a` and `aap-team-sre` |
+| Team SRE | **all** (`and`) | **SKIP** | Same failure mode |
+
+So for “is group X in this attribute list?”, **always use at least one**. Using **all** only makes sense if you truly need every returned value to match the comparison (almost never true for a multi-group membership list).
+
+This is the same rule as the email list example earlier: multi-value attribute + `and` means all values must match, not “user must have this one membership.”
+
+#### Same intent with **Based on groups** (when the groups channel is populated)
+
+If the authenticator already exposes `["aap-org-a", "aap-team-ops", "aap-team-sre"]` on the groups channel (e.g. OIDC Groups claim configured), prefer:
+
+| Field | Value |
+|-------|--------|
+| When to apply the rule | Based on groups |
+| How to apply the rule | **at least one** (same as `has_or`) |
+| Groups | `aap-team-ops` |
+
+```json
+{
+  "triggers": {
+    "groups": { "has_or": ["aap-team-ops"] }
+  }
+}
+```
+
+Here “How to apply the rule” joins **multiple Groups field entries on that one map** (`has_or` vs `has_and`), not values inside an attribute. With a single group entry, `all` vs `at least one` does not matter. With two entries on one map (`aap-team-ops` and `aap-team-sre`):
+
+- **at least one** → user needs either group  
+- **all** → user needs both groups  
+
+Multiple **separate** maps (one group each) still do not get joined by that dropdown; each map runs on its own in order.
+
+#### Practical guidance for this customer pattern
+
+1. Confirm where membership lives: attrs key `groups` vs authenticator groups list (logs: `{username}'s groups:` vs `{username}'s attrs:`).
+2. Attribute-list path → **Based on attributes**, `groups` + `equals`/`contains`, **How to apply = at least one**.
+3. One map per org/team target is fine; do not set **all** expecting “match this one group among many.”
+4. Prefer configuring the authenticator’s groups claim so **Based on groups** works — clearer UX and no multi-value `join_condition` footgun.
+5. Optional: comparison `in` with a list of acceptable names is another attribute-style option; `join_condition` still governs how multi-value user data is combined (see unit tests in `test_claims.py`).
+
 ### Multi-attribute map via API
 
 ```json
@@ -227,6 +329,8 @@ User needs **both** attributes to match. If the IdP returns multi-value lists, *
 | “How to apply the rule” ANDs/ORs **this map with other maps** | False — it only joins groups/attrs **inside this map** |
 | Maps are independent and never affect each other | False — they share ordered in-memory state; revoke and order compose effects |
 | `all` on a single-attribute map is always harmless | False if the IdP returns a **list** of values |
+| IdP attribute `groups: [...]` is the same as **Based on groups** | False unless the authenticator also fills the groups channel; attribute lists need **Based on attributes** |
+| Multiple team maps + `groups` list → use **all** so “they have that group” | False — use **at least one**; **all** requires every list value to match |
 | Authenticator maps = RBAC role editor | False — maps feed claims that become role assignments at login |
 | Docs “Condition type” is a different setting | Same control as UI “How to apply the rule” |
 
