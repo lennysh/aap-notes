@@ -11,6 +11,7 @@ Reference material for Ansible Automation Platform role-based access control (RB
 | [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) | **Humans** | Full role tree (text + mermaid) from superuser down to object roles |
 | [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) | **Humans & agents** | Every built-in role and its permissions, by service |
 | [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) | **Humans** | Advanced mermaid diagrams — shared permissions, subsets, unions |
+| [AAP-AUTHENTICATOR-MAPS.md](AAP-AUTHENTICATOR-MAPS.md) | **Humans & agents** | Auth Method mappings — triggers, “all / at least one”, order, revoke |
 | [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md) | **AI agents** | Goal → role lookup, API reference, decision guidance |
 
 ## Using with Cursor / other agents

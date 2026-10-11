@@ -6,7 +6,7 @@
 >
 > **Last derived from:** Local forks of `django-ansible-base`, `awx`, `eda-server`, `galaxy_ng`, and `ansible-ui`.
 >
-> **Companion docs:** [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) · [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) · [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md)
+> **Companion docs:** [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) · [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) · [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) · [AAP-AUTHENTICATOR-MAPS.md](AAP-AUTHENTICATOR-MAPS.md)
 
 ---
 
@@ -16,7 +16,7 @@
 2. **Find the goal** in [Goal → role lookup](#goal--role-lookup) or derive the required **permission codename(s)**.
 3. **Pick the narrowest role** that satisfies the goal (prefer object-scoped over org-scoped over system-scoped).
 4. **State assignment clearly:** role name + content type + target object + assignee (user or team).
-5. **Call out exceptions:** external auth (`MANAGE_ORGANIZATION_AUTH`), superuser, or service-specific gaps (Hub groups vs Platform teams).
+5. **Call out exceptions:** external auth (`MANAGE_ORGANIZATION_AUTH`), superuser, authenticator maps (login-time claims — see [AAP-AUTHENTICATOR-MAPS.md](AAP-AUTHENTICATOR-MAPS.md)), or service-specific gaps (Hub groups vs Platform teams).
 
 When unsure, recommend verifying on a live system:
 
