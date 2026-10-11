@@ -12,6 +12,7 @@ For OpenShift operator manifests, see [AAP 2.7 on OpenShift](../../openshift/AAP
 |------|---------------------|----------|
 | [inventory-example](inventory-example) | `inventory` | Enterprise — external PostgreSQL, Redis cluster, **Automation Metrics** |
 | [inventory-growth-example](inventory-growth-example) | `inventory-growth` | Container growth — single host, managed `[database]`, metrics on same host |
+| [migration-2.6-to-2.7.md](migration-2.6-to-2.7.md) | — | **2.6 → 2.7 inventory migration** — what to tweak before reusing a 2.6 inventory |
 | [vars-example.yml](vars-example.yml) | — | YAML-only options (lists/dicts); all commented; use with `-e @vars.yml` |
 | [extra-settings.md](extra-settings.md) | — | All `*_extra_settings` inventory vars — shapes, examples, documented knobs |
 | [install-playbook-tasks.md](install-playbook-tasks.md) | `playbooks/install.yml` | Install playbook tasks in execution order (recursive role expansion) |
@@ -37,11 +38,13 @@ When `[automationcontroller]` is present, **Automation Metrics Service is requir
 
 ## Version notes (2.7 vs 2.6)
 
-- **`[automationmetrics]`** is enabled in both starter inventories (not optional).
-- **EDA external Redis variables** (`eda_redis_*`) are removed; EDA uses PostgreSQL/dispatcherd.
-- New **EDA event stream / event persistence** database variables (`eda_event_stream_pg_*`, `eda_event_persistence_*`) appear in optional variables.
+Full checklist (failure sequence, external-DB EDA gotchas, registry pins): **[migration-2.6-to-2.7.md](migration-2.6-to-2.7.md)**.
+
+- **`[automationmetrics]`** is enabled in both starter inventories; with Controller present, preflight **requires** it unless `automationmetrics_skip_install=true` (and the group is empty).
+- **EDA external Redis variables** (`eda_redis_*`) are removed; EDA uses PostgreSQL/dispatcherd (installer cleans legacy Redis artifacts).
+- New **EDA event stream / event persistence** database variables (`eda_event_stream_pg_*`, `eda_event_persistence_*`); event-stream credentials are **required** for external DB without `postgresql_admin_password`.
 - New **Lightspeed** timeout and BYOK variables (`lightspeed_streaming_timeout`, `lightspeed_chatbot_byok_image`, etc.).
-- **`automationmetrics_skip_install`** — opt out of metrics when Controller is deployed.
+- Default `registry_ns_aap` is `ansible-automation-platform-27` — remove any hardcoded `-26` override.
 
 ## Regenerate from catalog
 
