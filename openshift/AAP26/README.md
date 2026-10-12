@@ -10,6 +10,7 @@ For containerized deployment on Linux hosts, see [AAP 2.6 containerized inventor
 |------|---------|
 | [secrets-aap.yml](secrets-aap.yml) | Platform + optional component secrets |
 | [aap.yml](aap.yml) | `AnsibleAutomationPlatform` CR |
+| [resource-requirements.md](resource-requirements.md) | Per-pod CPU/RAM minimums (operator defaults) and recommended starting points for ARB / capacity planning |
 
 Component CRD field reference: `aap-notes/.crd-dumps/2.6/`
 
