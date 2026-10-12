@@ -27,13 +27,48 @@ Customer-facing sizing reference for Architecture Review Boards and capacity pla
 
 ---
 
+## Definitions (read this first)
+
+| Term | Meaning |
+|------|---------|
+| **Pod** | Smallest deployable unit on OpenShift/Kubernetes. One pod can hold one or more **containers** that share the pod’s network/storage. |
+| **Container** | A process image running inside a pod (e.g. Gateway `api` and `proxy` are two containers in one gateway pod). |
+| **Replica** | How many identical copies of a pod the Deployment/StatefulSet keeps running. Totals in this doc are usually **per-pod value × replicas**. |
+| **req** / **request** | Kubernetes `resources.requests` — CPU/memory the scheduler **reserves** for the container. Used for placement and for most capacity-planning floors. |
+| **lim** / **limit** | Kubernetes `resources.limits` — CPU/memory **ceiling**. The container may use up to this; exceeding memory usually gets the pod OOM-killed. Many operator defaults omit limits. |
+| **CPU `m`** | Millicores. `1000m` = 1 full CPU/vCPU core. Example: `100m` = 0.1 core. |
+| **CPU bare number** | Whole cores when written without `m` (e.g. `2` or `"256"` = 2 or 256 cores). |
+| **RAM `Mi` / `Gi`** | Mebibytes / gibibytes (binary). `1024Mi` = 1Gi. Not the same as decimal MB/GB, but close enough for planning. |
+| **Operator default** | Values the AAP operators apply if you do **not** set custom `resource_requirements` on the CR. |
+| **Sample CR example** | Example values from the in-repo `aap-resource-requirements.yml` (requests **and** limits). A tuning / ResourceQuota starting point — **not** always larger than the operator default. |
+| **ARB floor** | Suggested Architecture Review Board planning number: the **higher** of operator-default vs sample **requests**, usually keeping default replica counts. |
+| **CR** | Custom Resource — here, typically `AnsibleAutomationPlatform` (and nested Controller/Hub/EDA specs). |
+| **ResourceQuota** | Namespace policy that requires pods to declare requests/limits and caps total usage. |
+| **Steady-state** | Resources after pods are running (excludes one-shot **init containers** and temporary backup/restore/migration jobs). |
+| **Init container** | Runs once at pod start, then exits. Not counted in steady-state totals. |
+| **EE** | Execution Environment — container image used to run Ansible. Control-plane EE sidecars are listed; **job EE pods** are not (they scale with workload). |
+| **Mesh / execution node** | Where playbook jobs often run outside the control-plane pods. Size separately. |
+| **Dispatcherd** | EDA’s PostgreSQL/`pg_notify`-based task queue in 2.7 (replaces the former EDA Redis + scheduler pods). |
+| **OOM** | Out of memory — kubelet kills a container that exceeds its memory **limit**. |
+
+### Column legend (tables below)
+
+| Column shorthand | Means |
+|------------------|--------|
+| Default CPU / RAM req | Operator-default **requests** |
+| Sample CPU / RAM req | Sample-CR **requests** |
+| Sample CPU / RAM lim | Sample-CR **limits** |
+| ARB floor | Higher of the two request columns (see Definitions) |
+
+---
+
 ## How to read this document
 
 Two columns are used throughout — **do not read them as “min vs larger recommendation”**:
 
 | Column | Meaning |
 |--------|---------|
-| **Operator default** | Out-of-the-box Kubernetes `requests` if you do **not** customize the CR. Most containers have **no** `limits`. |
+| **Operator default** | Out-of-the-box Kubernetes **requests** if you do **not** customize the CR. Most containers have **no** **limits**. |
 | **Sample CR example** | Values from `aap-resource-requirements.yml` (requests **and** limits). A ResourceQuota / tuning starting point — it can be **lower or higher** than the operator default depending on the field. |
 
 **Gateway gotcha:** operator ships Gateway `api`/`proxy` at **750Mi** each; the sample sets Gateway `api` to **256Mi** (and does not override `proxy`), so sample Gateway memory **requests** can look *lower* than an unmodified install. That is not a “size up from minimum” table.
