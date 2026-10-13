@@ -46,8 +46,12 @@ Customer-facing sizing reference for Architecture Review Boards and capacity pla
 | **ResourceQuota** | Namespace policy that requires pods to declare requests/limits and caps total usage. |
 | **Steady-state** | Resources after pods are running (excludes one-shot **init containers** and temporary backup/restore/migration jobs). |
 | **Init container** | Runs once at pod start, then exits. Not counted in steady-state totals. |
-| **EE** | Execution Environment — container image used to run Ansible. Control-plane EE sidecars are listed; **job EE pods** are not (they scale with workload). |
-| **Mesh / execution node** | Where playbook jobs often run outside the control-plane pods. Size separately. |
+| **EE** | Execution Environment — container image used to run Ansible. Control-plane EE sidecars are in the steady-state tables; **job EE pods** are in [§7](#7-ephemeral-execution-pods-automation-job--activation-job-). |
+| **Mesh / execution node** | Where playbook jobs often run outside the control-plane pods. Size separately (not the same as Container Group `automation-job-*` pods). |
+| **Container Group** | Controller instance group that launches each job as an OpenShift Pod (`automation-job-<job_id>`). |
+| **`automation-job-*`** | Ephemeral Controller Container Group job pod (one per running job). See [§7.1](#71-controller-container-group--automation-job-job_id). |
+| **`activation-job-*`** | Ephemeral EDA Kubernetes Job for a running activation; pod template `activation-pod-*`. See [§7.2](#72-eda-activations--activation-job-activation_id-rulebook_process_id). |
+| **Ephemeral / peak concurrent** | Resources that exist only while jobs/activations run. Plan for the **maximum** number expected at once, not the steady-state platform footprint. |
 | **Dispatcherd** | EDA’s PostgreSQL/`pg_notify`-based task queue in 2.7 (replaces the former EDA Redis + scheduler pods). |
 | **OOM** | Out of memory — kubelet kills a container that exceeds its memory **limit**. |
 | **Shared CR resource block** | Some EDA pods apply the **same** `resource_requirements` from the CR to **every** app container in that pod (e.g. EDA API: `eda-api` + `daphne` + `nginx` each get the full `api.resource_requirements`). Pod totals are therefore **N ×** the CR field. |
@@ -81,7 +85,7 @@ Two columns are used throughout — **do not read them as “min vs larger recom
 1. **Requests ≠ production capacity.** Operator defaults are sized to *schedule*, not large job loads. Controller **task** capacity on OpenShift is derived from **limits** on the task container when set.
 2. **Multi-container pods** sum container requests/limits (Gateway API+proxy; Controller web/task sidecars).
 3. **Init containers** are startup-only and excluded from steady-state totals.
-4. **Not included:** automation job / EE pods, mesh execution/hop nodes, backup/restore jobs, playbook workload.
+4. **Steady-state tables exclude** mesh execution/hop nodes, backup/restore jobs, and playbook-launched customer workloads. **Container Group `automation-job-*` and EDA `activation-job-*` pods** are documented in [§7](#7-ephemeral-execution-pods-automation-job--activation-job-) (peak concurrent), not in §6 totals.
 5. **EDA UI** is **disabled** when managed via the platform CR (`ui_disabled: true`).
 6. **Hub Postgres** still defaults to `postgres_resource_requirements: {}` — set explicitly for ResourceQuota clusters.
 7. **Gateway Envoy (`proxy`)** still ships CPU **limit** `256` by design (FD/thread safety). Do not size the cluster to that number.
@@ -323,7 +327,7 @@ These run in the Operator namespace (often `aap` or a dedicated operators projec
 
 ## 6. Totals — standard platform (Gateway + Controller + Hub + EDA)
 
-Steady-state **requests** only. Excludes init containers, job/EE pods, mesh nodes, Lightspeed/MCP/Metrics, and Hub Postgres when unset.
+Steady-state **requests** only. Excludes init containers, ephemeral `automation-job-*` / `activation-job-*` pods (see [§7](#7-ephemeral-execution-pods-automation-job--activation-job-)), mesh nodes, Lightspeed/MCP/Metrics, and Hub Postgres when unset.
 
 ### 6.1 Workload pods (operands)
 
@@ -360,9 +364,86 @@ Summing **limits** from the sample for deployed containers (Gateway `proxy` CPU 
 
 ---
 
-## 7. Optional components
+## 7. Ephemeral execution pods (`automation-job-*`, `activation-job-*`)
 
-### 7.1 Ansible Lightspeed / model serving (heavy)
+These are **not** part of the steady-state platform totals in §6. They are created while work is running and removed afterward. Size worker/node capacity for **peak concurrent** jobs or activations, not daily averages.
+
+### 7.1 Controller Container Group — `automation-job-<job_id>`
+
+When a Job Template runs on a **Container Group** instance group, Controller creates one OpenShift Pod per running job.
+
+| Item | Value |
+|------|-------|
+| Pod name | `automation-job-<job_id>` |
+| Containers | **1** — launch path sets the container name to `automation-job-<job_id>` (default pod-spec template uses `worker`) |
+| Image | The job’s Execution Environment |
+| Default CPU request | `250m` |
+| Default RAM request | `100Mi` |
+| Default limits | **none** |
+| Override | Instance Group **Pod specification** (`pod_spec_override`) deep-merged over the default |
+
+**Not this path:** jobs on automation mesh / hybrid execution nodes do **not** create these pods (receptor work-unit names may still look like `automation-job-<id>`). Size mesh nodes separately.
+
+#### Per-container breakdown (default Container Group pod)
+
+| Container | Role | CPU req | RAM req | CPU lim | RAM lim |
+|-----------|------|---------|---------|---------|---------|
+| `automation-job-<job_id>` | `ansible-runner worker` | 250m | 100Mi | — | — |
+| **Pod total** | | **250m** | **100Mi** | — | — |
+
+#### Concurrent Controller jobs — reserved capacity at **default** requests
+
+| Peak concurrent jobs | CPU reserved | RAM reserved |
+|---------------------:|-------------:|-------------:|
+| 100 | 25 cores (`25000m`) | ~9.8 Gi (`10000Mi`) |
+| 500 | 125 cores | ~48.8 Gi (`50000Mi`) |
+| 1000 | 250 cores | ~97.7 Gi (`100000Mi`) |
+
+Formula: `N × 250m` CPU and `N × 100Mi` RAM. If you raise per-pod requests (or set limits) via Instance Group pod spec for heavy playbooks, scale the table by your per-pod values.
+
+Also plan Controller **task** capacity / forks — each running job consumes control-plane capacity in addition to the EE pod reservation.
+
+### 7.2 EDA activations — `activation-job-<activation_id>-<rulebook_process_id>`
+
+When an activation runs on OpenShift, EDA creates a Kubernetes **Job**; the Job controller creates the running Pod.
+
+| Item | Value |
+|------|-------|
+| Job name | `activation-job-<activation_id>-<rulebook_process_id>` (`resource_prefix` = `activation`) |
+| Pod template name | `activation-pod-<activation_id>-<rulebook_process_id>` |
+| Running pod name | Typically `{job-name}-xxxxx` (Job controller suffix) |
+| Containers | **1** — name `eda-<rulebook_process_id>-<uuid>` (`CONTAINER_NAME_PREFIX` default `eda`) |
+| Workload | `ansible-rulebook` in the decision-environment image |
+| Default CPU / RAM requests | **unset** (container has no `resources` block) |
+| Default limits | **unset** → QoS **BestEffort** unless a namespace LimitRange / admission policy injects values |
+| Related (Podman only) | `PODMAN_MEM_LIMIT` default `200m` — **not** applied on the Kubernetes engine path |
+
+#### Per-container breakdown (as coded today)
+
+| Container | Role | CPU req | RAM req | CPU lim | RAM lim |
+|-----------|------|---------|---------|---------|---------|
+| `eda-<process_id>-<uuid>` | `ansible-rulebook` | — (unset) | — (unset) | — | — |
+| **Pod total** | | **0 reserved** | **0 reserved** | — | — |
+
+For ResourceQuota / ARB planning you **must** pick an assumed floor (LimitRange, policy, or measured usage). The product does not reserve CPU/RAM for activation pods by default.
+
+#### Concurrent activations — illustrative planning floors
+
+These rows are **planning scenarios**, not product defaults. Choose a per-activation floor from measurement or policy, then scale:
+
+| Peak concurrent activations | @ 250m / 256Mi each | @ 250m / 512Mi each | @ 500m / 1Gi each |
+|----------------------------:|--------------------:|--------------------:|------------------:|
+| 100 | 25 cores / 25 Gi | 25 cores / 50 Gi | 50 cores / 100 Gi |
+| 500 | 125 cores / 125 Gi | 125 cores / 250 Gi | 250 cores / 500 Gi |
+| 1000 | 250 cores / 250 Gi | 250 cores / 500 Gi | 500 cores / 1000 Gi |
+
+Actual usage depends on rulebook complexity and event rate. Unlike short Controller jobs, long-lived activations hold their reservation for the entire runtime.
+
+**Control plane:** starting/managing activations also needs EDA `activation_worker` (and related worker) capacity — scale those Deployments separately from the activation pods.
+
+## 8. Optional components
+
+### 8.1 Ansible Lightspeed / model serving (heavy)
 
 | Pod | Replicas | CPU req | RAM req | CPU lim | RAM lim |
 |-----|----------|---------|---------|---------|---------|
@@ -372,7 +453,7 @@ Summing **limits** from the sample for deployed containers (Gateway `proxy` CPU 
 | lightspeed-postgres | 1 | 50m | 100Mi | — | — |
 | **Lightspeed subtotal (req)** | | **1150m** | **~10.4 Gi** | | |
 
-### 7.2 Metrics service
+### 8.2 Metrics service
 
 | Pod | Replicas | CPU req | RAM req | CPU lim | RAM lim |
 |-----|----------|---------|---------|---------|---------|
@@ -380,12 +461,15 @@ Summing **limits** from the sample for deployed containers (Gateway `proxy` CPU 
 
 ---
 
-## 8. What to tell the Architecture Review Board
+## 9. What to tell the Architecture Review Board
 
 **Cluster reservation for control plane (default Operator install):**
 
 - Use the **ARB floor** (~**2.8 CPU / ~8.9 Gi** workload requests; ~**9.4 Gi** with core four operators, ~**9.8 Gi** if Metrics + Lightspeed operators are also installed) — not the lower sample-CR request totals. Gateway/Hub defaults already request more memory than the customize snippet; EDA API/event-stream pods request **N ×** the CR field (3 and 2 containers).
-- Still **not** sufficient for concurrent automation — add execution capacity (Container Group EE pods and/or mesh nodes), commonly on the order of **4 vCPU / 16 Gi per execution node** as a starting analogy.
+- Still **not** sufficient for concurrent automation. Add:
+  - **Container Group job pods** (`automation-job-*`): default **250m / 100Mi** each — e.g. **100 / 500 / 1000** concurrent ⇒ **25 / 125 / 250** cores and **~10 / ~49 / ~98 Gi** reserved (see [§7.1](#71-controller-container-group--automation-job-job_id)).
+  - **EDA activation pods** (`activation-job-*`): **no default requests/limits** — assume a planning floor (e.g. 250m/512Mi) and scale; **100 / 500 / 1000** concurrent at that floor ⇒ **25 / 125 / 250** cores and **50 / 250 / 500 Gi** (see [§7.2](#72-eda-activations--activation-job-activation_id-rulebook_process_id)).
+  - **Mesh execution/hop nodes** (if used): commonly on the order of **4 vCPU / 16 Gi per execution node** as a starting analogy.
 
 **Production / ResourceQuota practice:**
 
@@ -399,7 +483,7 @@ Summing **limits** from the sample for deployed containers (Gateway `proxy` CPU 
 
 ---
 
-## 9. Source file map (lab clone `aap-27/`)
+## 10. Source file map (lab clone `aap-27/`)
 
 | Component | Defaults / reference |
 |-----------|----------------------|
@@ -414,10 +498,14 @@ Summing **limits** from the sample for deployed containers (Gateway `proxy` CPU 
 | Recommended sample CR | `operator/automation-gateway-operator/dev/aap-cr/aap-resource-requirements.yml` |
 | Lightspeed | `operator/automation-lightpseed-operator/roles/*/defaults/main.yml` |
 | Metrics | `operator/automation-metrics-operator/roles/automationmetricsservice/defaults/main.yml` |
+| Controller Container Group default pod | `controller/automation-controller/awx/main/utils/execution_environments.py` (`get_default_pod_spec`) |
+| Controller job pod naming / merge | `controller/automation-controller/awx/main/scheduler/kubernetes.py` |
+| EDA activation Job/Pod (K8s) | `eda/automation-eda-controller/src/aap_eda/services/activation/engine/kubernetes.py` |
+| EDA container name / Podman mem | `eda/automation-eda-controller/src/aap_eda/settings/defaults.py` (`CONTAINER_NAME_PREFIX`, `PODMAN_MEM_LIMIT`) |
 
 ---
 
-## 10. Example CR snippet (recommended starting point for 2.7)
+## 11. Example CR snippet (recommended starting point for 2.7)
 
 Adapted from the gateway-operator sample. EDA `scheduler` / `ui` / Redis omitted because they are not part of the 2.7 platform footprint.
 
@@ -527,4 +615,5 @@ spec:
 
 - Values verified against AAP 2.7 operator defaults in the lab clone (`aap-27/.version.lock` → `2.7`).
 - No local `product-docs/` tree was present for 2.7 in the clone; recommended column uses the in-repo gateway-operator sample CR.
+- Added §7 for ephemeral Controller `automation-job-*` (default 250m/100Mi) and EDA `activation-job-*` (no K8s resources by default), with concurrent 100/500/1000 examples (same code paths as 2.6 for these pods).
 - Re-validate after operator z-stream upgrades; defaults can change.
