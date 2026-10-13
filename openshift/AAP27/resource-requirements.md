@@ -21,7 +21,7 @@ Customer-facing sizing reference for Architecture Review Boards and capacity pla
 | **`spec.eda.redis` / `eda_redis_secret`** | Deprecated and ignored on upgrade; operator cleans up legacy Redis objects. |
 | Gateway / Controller / Hub defaults | Same request values as 2.6 for the compared fields. |
 
-**Net effect on default request footprint (standard platform install):** about **−150m CPU / −612Mi RAM** vs AAP 2.6 (removal of EDA scheduler ×2 and EDA Redis ×1).
+**Net effect on default request footprint (standard platform install):** about **−150m CPU / −612Mi RAM** vs AAP 2.6 after multi-container-aware EDA math (removal of EDA scheduler ×2 and EDA Redis ×1). EDA API still counts as **3×** `api.resource_requirements`; event-stream as **2×**.
 
 > Note: The sample CR `aap-resource-requirements.yml` in the gateway operator still shows EDA `scheduler` / `ui` blocks for historical completeness. Under a platform CR, **EDA UI remains disabled**, and **scheduler/redis are not deployed** in 2.7. Size only the pods that actually exist.
 
@@ -50,6 +50,7 @@ Customer-facing sizing reference for Architecture Review Boards and capacity pla
 | **Mesh / execution node** | Where playbook jobs often run outside the control-plane pods. Size separately. |
 | **Dispatcherd** | EDA’s PostgreSQL/`pg_notify`-based task queue in 2.7 (replaces the former EDA Redis + scheduler pods). |
 | **OOM** | Out of memory — kubelet kills a container that exceeds its memory **limit**. |
+| **Shared CR resource block** | Some EDA pods apply the **same** `resource_requirements` from the CR to **every** app container in that pod (e.g. EDA API: `eda-api` + `daphne` + `nginx` each get the full `api.resource_requirements`). Pod totals are therefore **N ×** the CR field. |
 
 ### Column legend (tables below)
 
@@ -183,6 +184,8 @@ Web and task are **separate Deployments**. Default `replicas: 1` each (unless `w
 
 ## 3. Private Automation Hub
 
+Each Hub Deployment/StatefulSet below is a **single app container** per pod (the CR `resource_requirements` applies once per pod). Postgres may include a conditional init container using the same postgres resource block.
+
 | Pod | Default replicas | Default CPU / RAM **per pod** | Sample replicas | Sample CPU / RAM req | Sample CPU / RAM lim |
 |-----|------------------|------------------------------|-----------------|---------------------|---------------------|
 | hub-api | 1 | 200m / 512Mi | 1 | 150m / 256Mi ↓ | 800m / 500Mi |
@@ -207,27 +210,95 @@ Web and task are **separate Deployments**. Default `replicas: 1` each (unless `w
 
 ## 4. Event-Driven Ansible (2.7 layout)
 
-| Pod | Default replicas | Default CPU / RAM **per pod** | Sample replicas | Sample CPU / RAM req | Sample CPU / RAM lim |
-|-----|------------------|------------------------------|-----------------|---------------------|---------------------|
-| eda-api | 1 | 50m / 350Mi | 1 | 50m / 350Mi | 500m / 400Mi |
-| eda-default-worker | **2** | 25m / 130Mi | **1** | 25m / 200Mi | 500m / 400Mi |
-| eda-activation-worker | **2** | 25m / 150Mi | **1** | 25m / 150Mi | 500m / 400Mi |
-| eda-event-stream | 1 | 50m / 350Mi | 1 | 25m / 150Mi | 100m / 300Mi |
-| eda-postgres | 1 | 50m / 100Mi | 1 | 50m / 100Mi\* | *(set for quotas)* |
-| ~~eda-scheduler~~ | — | — | — | — | **Removed in 2.7** |
-| ~~eda-redis~~ | — | — | — | — | **Removed in 2.7** |
-| eda-ui | — | 25m / 64Mi | — | — | **Not deployed** under platform CR |
+> **2.7 removals:** no `eda-redis` pod and no `eda-scheduler` pod (dispatcherd / PostgreSQL `pg_notify`). Legacy Redis/scheduler objects are cleaned up on upgrade.  
+> **Multi-container note:** Setting `spec.eda.api.resource_requirements` (etc.) configures **each** listed app container — not the pod as a whole. Init containers use the same CR block when present but are **startup-only**. `configure-bundle-ca-cert` init appears only when a bundle CA is configured.
 
-\* Postgres omitted from the sample CR; operator default shown.
+### 4.1 `eda-api` pod (Deployment) — default replicas **1**
 
-**EDA subtotal (requests × replicas; no UI / no Redis / no scheduler)**
+CR field: `api.resource_requirements` (default **50m / 350Mi** req; sample same req, **500m / 400Mi** lim).
+
+| Role | Container | Default CPU / RAM req | Sample CPU / RAM req | Sample CPU / RAM lim |
+|------|-----------|----------------------|---------------------|---------------------|
+| init (startup) | `run-migrations` | 50m / 350Mi | 50m / 350Mi | 500m / 400Mi |
+| init (startup) | `eda-initial-data` | 50m / 350Mi | 50m / 350Mi | 500m / 400Mi |
+| init (startup, optional) | `configure-bundle-ca-cert` | 50m / 350Mi | 50m / 350Mi | 500m / 400Mi |
+| app | `eda-api` (gunicorn) | 50m / 350Mi | 50m / 350Mi | 500m / 400Mi |
+| app | `daphne` (WebSocket/ASGI) | 50m / 350Mi | 50m / 350Mi | 500m / 400Mi |
+| app | `nginx` | 50m / 350Mi | 50m / 350Mi | 500m / 400Mi |
+| **Steady-state pod total** | **3 app containers** | **150m / 1050Mi** | **150m / 1050Mi** | **1500m / 1200Mi** |
+
+### 4.2 `eda-event-stream` pod — default replicas **1**
+
+CR field: `event_stream.resource_requirements` (default **50m / 350Mi**; sample **25m / 150Mi** req, **100m / 300Mi** lim).
+
+| Role | Container | Default CPU / RAM req | Sample CPU / RAM req | Sample CPU / RAM lim |
+|------|-----------|----------------------|---------------------|---------------------|
+| init (startup) | `wait-for-migrations` | 50m / 350Mi | 25m / 150Mi | 100m / 300Mi |
+| init (startup, optional) | `configure-bundle-ca-cert` | 50m / 350Mi | 25m / 150Mi | 100m / 300Mi |
+| app | `eda-event-stream` | 50m / 350Mi | 25m / 150Mi | 100m / 300Mi |
+| app | `nginx` | 50m / 350Mi | 25m / 150Mi | 100m / 300Mi |
+| **Steady-state pod total** | **2 app containers** | **100m / 700Mi** | **50m / 300Mi** | **200m / 600Mi** |
+
+### 4.3 `eda-default-worker` pod — default replicas **2** (sample often **1**)
+
+CR field: `default_worker.resource_requirements` (default **25m / 130Mi**; sample **25m / 200Mi** req, **500m / 400Mi** lim).
+
+| Role | Container | Default CPU / RAM req | Sample CPU / RAM req | Sample CPU / RAM lim |
+|------|-----------|----------------------|---------------------|---------------------|
+| init (startup) | `wait-for-migrations` | 25m / 130Mi | 25m / 200Mi | 500m / 400Mi |
+| init (startup, optional) | `configure-bundle-ca-cert` | 25m / 130Mi | 25m / 200Mi | 500m / 400Mi |
+| app | `eda-default-worker` | 25m / 130Mi | 25m / 200Mi | 500m / 400Mi |
+| **Steady-state pod total** | **1 app container** | **25m / 130Mi** | **25m / 200Mi** | **500m / 400Mi** |
+
+### 4.4 `eda-activation-worker` pod — default replicas **2** (sample often **1**)
+
+CR field: `activation_worker.resource_requirements` (default **25m / 150Mi**; sample **25m / 150Mi** req, **500m / 400Mi** lim).
+
+| Role | Container | Default CPU / RAM req | Sample CPU / RAM req | Sample CPU / RAM lim |
+|------|-----------|----------------------|---------------------|---------------------|
+| init (startup) | `wait-for-migrations` | 25m / 150Mi | 25m / 150Mi | 500m / 400Mi |
+| init (startup, optional) | `configure-bundle-ca-cert` | 25m / 150Mi | 25m / 150Mi | 500m / 400Mi |
+| app | `eda-activation-worker` | 25m / 150Mi | 25m / 150Mi | 500m / 400Mi |
+| **Steady-state pod total** | **1 app container** | **25m / 150Mi** | **25m / 150Mi** | **500m / 400Mi** |
+
+### 4.5 `eda-postgres` pod — default replicas **1**
+
+| Role | Container | Default CPU / RAM req | Sample | Notes |
+|------|-----------|----------------------|--------|-------|
+| init (startup, conditional) | `init` | 50m / 100Mi | *(omit from sample; use default)* | Volume-init path; not always present on OpenShift |
+| app | `postgres` | 50m / 100Mi | *(omit from sample; use default)* | Shared with dispatcherd/`pg_notify` in 2.7 |
+
+### 4.6 Removed in 2.7 (do not size)
+
+| Former pod | Status |
+|------------|--------|
+| `eda-scheduler` | Removed — scheduling is inside dispatcherd workers |
+| `eda-redis` | Removed — no Redis Deployment |
+
+### 4.7 `eda-ui` pod — **not deployed** under platform CR (`ui_disabled: true`)
+
+| Role | Container | Default CPU / RAM req | Sample CPU / RAM req | Sample CPU / RAM lim |
+|------|-----------|----------------------|---------------------|---------------------|
+| app | `eda-ui` | 25m / 64Mi | 25m / 64Mi | 500m / 150Mi |
+
+### 4.8 EDA rollup (steady-state requests × replicas; no UI / no Redis / no scheduler)
+
+| Pod | Def. reps | Containers (app) | Default pod req | Default × reps | Sample reps | Sample pod req | Sample × reps |
+|-----|-----------|------------------|-----------------|----------------|-------------|----------------|---------------|
+| eda-api | 1 | 3 | 150m / 1050Mi | 150m / 1050Mi | 1 | 150m / 1050Mi | 150m / 1050Mi |
+| eda-event-stream | 1 | 2 | 100m / 700Mi | 100m / 700Mi | 1 | 50m / 300Mi | 50m / 300Mi |
+| eda-default-worker | **2** | 1 | 25m / 130Mi | 50m / 260Mi | **1** | 25m / 200Mi | 25m / 200Mi |
+| eda-activation-worker | **2** | 1 | 25m / 150Mi | 50m / 300Mi | **1** | 25m / 150Mi | 25m / 150Mi |
+| eda-postgres | 1 | 1 | 50m / 100Mi | 50m / 100Mi | 1 | 50m / 100Mi | 50m / 100Mi |
+| **EDA total** | | | | **400m / 2410Mi (~2.4 Gi)** | | | **300m / 1800Mi (~1.8 Gi)** |
 
 | | Operator default (× default reps) | Sample (× sample reps) | ARB floor\* |
 |--|-----------------------------------|------------------------|-------------|
-| CPU | **250m** | 175m | **250m** |
-| Memory | **1360Mi (~1.3 Gi)** | 950Mi (~0.9 Gi) | **1360Mi (~1.3 Gi)** |
+| CPU | **400m** | 300m | **400m** |
+| Memory | **2410Mi (~2.4 Gi)** | 1800Mi (~1.8 Gi) | **~2550Mi (~2.5 Gi)**† |
 
-\* Floor assumes default EDA worker replica counts.
+\* Floor keeps **default replica counts**.  
+† Slightly above operator-default memory because sample raises default-worker memory to 200Mi/pod while default reps remain 2.
 
 Operator docs state dispatcherd/`pg_notify` overhead on Postgres is typically negligible; keep normal DB headroom rather than adding a Redis-sized reservation.
 
@@ -235,15 +306,18 @@ Operator docs state dispatcherd/`pg_notify` overhead on Postgres is typically ne
 
 ## 5. Operator manager pods
 
-| Operator Deployment | CPU req | RAM req | CPU lim | RAM lim |
-|---------------------|---------|---------|---------|---------|
-| automation-gateway-operator | 10m | 256Mi | 2000m | 4000Mi |
-| automation-controller-operator | 50m | 32Mi | 2000m | 4000Mi |
-| automation-hub-operator | 10m | 256Mi | 2000m | 1800Mi |
-| automation-eda-controller-operator | 10m | 256Mi | 2000m | 4000Mi |
-| **Operator subtotal (requests)** | **80m** | **800Mi** | — | — |
+These run in the Operator namespace (often `aap` or a dedicated operators project). One replica each typical. Metrics and Lightspeed managers are only present if those operators are installed from OperatorHub / the bundle; include them in capacity planning when the customer will enable those features.
 
-Optional: metrics-operator (100m/128Mi req, 500m/1Gi lim); lightspeed-operator (10m/256Mi req, 500m/768Mi lim).
+| Operator Deployment | CPU req | RAM req | CPU lim | RAM lim | Notes |
+|---------------------|---------|---------|---------|---------|-------|
+| automation-gateway-operator | 10m | 256Mi | 2000m | 4000Mi | Always for platform CR |
+| automation-controller-operator | 50m | 32Mi | 2000m | 4000Mi | Always for platform CR |
+| automation-hub-operator | 10m | 256Mi | 2000m | 1800Mi | If Hub enabled |
+| automation-eda-controller-operator | 10m | 256Mi | 2000m | 4000Mi | If EDA enabled |
+| automation-metrics-operator | 100m | 128Mi | 500m | 1Gi | If Metrics operator installed |
+| automation-lightspeed-operator | 10m | 256Mi | 500m | 768Mi | If Lightspeed operator installed (`lightpseed` package name in clone) |
+| **Core four (GW+Ctrl+Hub+EDA) requests** | **80m** | **800Mi** | — | — | Typical platform install |
+| **All six (incl. Metrics+Lightspeed) requests** | **190m** | **1184Mi (~1.2 Gi)** | — | — | When both optional operators are installed |
 
 ---
 
@@ -258,18 +332,19 @@ Steady-state **requests** only. Excludes init containers, job/EE pods, mesh node
 | Gateway | 350m / 2112Mi | 350m / 1518Mi | 350m / **2112Mi** |
 | Controller | 610m / 768Mi | 610m / 862Mi | 610m / **862Mi** |
 | Hub (no postgres) | 1400m / 3584Mi | 650m / 1274Mi | **1400m / 3584Mi** |
-| EDA (2.7 layout) | 250m / 1360Mi | 175m / 950Mi | **250m / 1360Mi** |
-| **Workload total** | **2610m (~2.6 cores) / 7824Mi (~7.6 Gi)** | 1785m / 4604Mi | **~2.6 cores / ~7.7 Gi** |
+| EDA (2.7, multi-container aware) | 400m / 2410Mi | 300m / 1800Mi | **400m / ~2550Mi** |
+| **Workload total** | **2760m (~2.8 cores) / 8874Mi (~8.7 Gi)** | 1910m / 5454Mi | **~2.8 cores / ~8.9 Gi** |
 
-\* ARB floor = higher of the two columns, keeping **default replica counts** for Hub/EDA.
+\* ARB floor = higher of the two columns, keeping **default replica counts** for Hub/EDA. EDA pod totals multiply shared CR resource blocks across app containers (API ×3, event-stream ×2).
 
-Add Hub Postgres when set (suggested +200m / +512Mi): ~**2.8 cores / ~8.2 Gi** ARB-floor footprint.
+Add Hub Postgres when set (suggested +200m / +512Mi): ~**3.0 cores / ~9.4 Gi** ARB-floor footprint.
 
 ### 6.2 Including operator managers
 
 | Scope | Operator default CPU / RAM |
 |-------|----------------------------|
-| Workload + operators | **2690m (~2.7 cores) / 8624Mi (~8.4 Gi)** |
+| Workload + core four operators | **2840m (~2.8 cores) / 9674Mi (~9.4 Gi)** |
+| Workload + all six operators | **2950m (~3.0 cores) / 10058Mi (~9.8 Gi)** |
 
 ### 6.3 Sample-CR limits footprint (approximate)
 
@@ -280,8 +355,8 @@ Summing **limits** from the sample for deployed containers (Gateway `proxy` CPU 
 | Gateway api+redis+db | 1.5 cores | ~2.3 Gi |
 | Controller web+task containers | 3.4 cores | ~4.1 Gi |
 | Hub (sample replicas) | 3.2 cores | ~2.8 Gi |
-| EDA (api + workers + event-stream) | 1.6 cores | ~1.5 Gi |
-| **Rough limits budget** | **~9.7 cores** | **~10.7 Gi** |
+| EDA (sample reps; API×3 + event-stream×2; no redis/scheduler) | ~2.7 cores | ~2.5 Gi |
+| **Rough limits budget** | **~10.8 cores** | **~11.7 Gi** |
 
 ---
 
@@ -309,7 +384,7 @@ Summing **limits** from the sample for deployed containers (Gateway `proxy` CPU 
 
 **Cluster reservation for control plane (default Operator install):**
 
-- Use the **ARB floor** (~**2.6 CPU / ~7.7 Gi** workload requests, ~**8.4 Gi** with operators) — not the lower sample-CR request totals. Gateway/Hub defaults already request more memory than the customize snippet.
+- Use the **ARB floor** (~**2.8 CPU / ~8.9 Gi** workload requests; ~**9.4 Gi** with core four operators, ~**9.8 Gi** if Metrics + Lightspeed operators are also installed) — not the lower sample-CR request totals. Gateway/Hub defaults already request more memory than the customize snippet; EDA API/event-stream pods request **N ×** the CR field (3 and 2 containers).
 - Still **not** sufficient for concurrent automation — add execution capacity (Container Group EE pods and/or mesh nodes), commonly on the order of **4 vCPU / 16 Gi per execution node** as a starting analogy.
 
 **Production / ResourceQuota practice:**
