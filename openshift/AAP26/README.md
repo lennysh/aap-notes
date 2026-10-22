@@ -12,6 +12,7 @@ For containerized deployment on Linux hosts, see [AAP 2.6 containerized inventor
 | [aap.yml](aap.yml) | `AnsibleAutomationPlatform` CR |
 | [resource-requirements.md](resource-requirements.md) | Per-pod CPU/RAM minimums (operator defaults) and recommended starting points for ARB / capacity planning |
 | [external-db-to-openshift-upgrade.md](external-db-to-openshift-upgrade.md) | Reusing AAP 2.4 RPM **or** containerized DBs with a direct 2.6 Operator install (schema migrate vs in-cluster upgrade gates) |
+| [organization-delete-db-behavior.md](organization-delete-db-behavior.md) | What Controller actually CASCADE / SET_NULL / async-deletes in PostgreSQL when an Organization is deleted |
 
 Component CRD field reference: `aap-notes/.crd-dumps/2.6/`
 
