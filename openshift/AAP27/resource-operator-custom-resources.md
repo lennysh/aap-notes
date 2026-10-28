@@ -552,3 +552,4 @@ If reconcile fails with 401/403, re-check token scope (`write`), token user RBAC
 
 - Platform install examples: [README.md](README.md), [secrets-aap.yml](secrets-aap.yml), [aap.yml](aap.yml)
 - CRD dumps: `../../.crd-dumps/2.7/tower.ansible.com_*.yaml`
+- Same content for 2.6 (schemas match): [../AAP26/resource-operator-custom-resources.md](../AAP26/resource-operator-custom-resources.md)
