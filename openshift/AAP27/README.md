@@ -11,6 +11,7 @@ For containerized deployment on Linux hosts, see [AAP 2.7 containerized inventor
 | [secrets-aap.yml](secrets-aap.yml) | Platform + optional component secrets |
 | [aap.yml](aap.yml) | `AnsibleAutomationPlatform` CR |
 | [resource-requirements.md](resource-requirements.md) | Per-pod CPU/RAM minimums (operator defaults) and recommended starting points for ARB / capacity planning |
+| [resource-operator-custom-resources.md](resource-operator-custom-resources.md) | Resource Operator (`tower.ansible.com`) CR field reference + `aap-access` connection secret (expanded beyond docs.redhat.com) |
 
 Component CRD field reference: `aap-notes/.crd-dumps/2.7/`
 
