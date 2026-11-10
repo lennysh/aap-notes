@@ -296,7 +296,7 @@ Go to **Credentials → Add / Create credential**:
 | Field | Value |
 |-------|-------|
 | Name | e.g. `OpenShift - ocp-prod-east container group` |
-| Organization | your organization |
+| Organization | **Leave blank** (recommended). This does *not* make it global: it makes the credential private to you and system administrators. That is fine here, because only system administrators can manage container groups, and jobs use the container group without users needing access to the credential. Blank also keeps the token visible to the fewest people. |
 | Credential type | **OpenShift or Kubernetes API Bearer Token** |
 | OpenShift or Kubernetes API Endpoint | **API URL** from the handoff (the `:6443` URL, *not* the web console URL) |
 | API authentication bearer token | **Token** from the handoff |
@@ -482,7 +482,6 @@ The same tasks work on 2.4 and 2.5+. Only the connection target changes: point `
 - name: OpenShift credential for the container group
   ansible.controller.credential:
     name: OpenShift - ocp-prod-east container group
-    organization: Default
     credential_type: OpenShift or Kubernetes API Bearer Token
     inputs:
       host: https://api.ocp.example.com:6443
