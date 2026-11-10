@@ -10,6 +10,7 @@ Personal reference material for [Ansible Automation Platform (AAP)](https://www.
 | [`installer/`](installer/) | **RPM & containerized** — inventories, vars examples, install playbook task reference |
 | [`openshift/`](openshift/) | **OpenShift operator** — CR and secret examples (not install playbooks) |
 | [`backup-restore/`](backup-restore/) | **Backup / restore / migration** — what gets dumped, UUID/secrets rules, RPM↔OCP limits |
+| [`container-groups/`](container-groups/) | **Container Groups** — run jobs as pods on a remote OpenShift cluster (OCP prep, network, AAP setup) |
 | [`ui/`](ui/) | Platform UI design tokens — colors, typography, dark mode, HTML report starter CSS |
 
 Local Red Hat inputs (gitignored at repo root): [`.installer-dumps/`](.installer-dumps/) (installer tarballs), [`.crd-dumps/`](.crd-dumps/) (operator CRDs), [`.operator-dumps/`](.operator-dumps/) (operator `/opt/ansible` exports).
@@ -20,6 +21,7 @@ Local Red Hat inputs (gitignored at repo root): [`.installer-dumps/`](.installer
 - **Installer index** — [`installer/README.md`](installer/README.md)
 - **OpenShift index** — [`openshift/README.md`](openshift/README.md)
 - **Backup / restore / migration** — [`backup-restore/README.md`](backup-restore/README.md)
+- **Container Group on OpenShift** — [`container-groups/AAP-CONTAINER-GROUP-OPENSHIFT.md`](container-groups/AAP-CONTAINER-GROUP-OPENSHIFT.md)
 - **OpenShift examples** — [2.4](openshift/AAP24/README.md) · [2.5](openshift/AAP25/README.md) · [2.6](openshift/AAP26/README.md) · [2.7](openshift/AAP27/README.md)
 - **RPM inventories** — [2.4](installer/AAP24/rpm/README.md) · [2.5](installer/AAP25/rpm/README.md) · [2.6](installer/AAP26/rpm/README.md) (no RPM for 2.7)
 - **Containerized inventories** — [2.5](installer/AAP25/containerized/README.md) · [2.6](installer/AAP26/containerized/README.md) · [2.7](installer/AAP27/containerized/README.md)
@@ -36,6 +38,7 @@ Local Red Hat inputs (gitignored at repo root): [`.installer-dumps/`](.installer
 | UI colors / HTML report styling | `ui/AAP-UI-DESIGN-AGENT-CONTEXT.md` |
 | Backup, restore, UUIDs, migrate_data vs Gateway migrate | `backup-restore/AAP-BACKUP-RESTORE-AGENT-CONTEXT.md` |
 | Inventory or install playbook tasks | `installer/AAP25/containerized/` (match your version/method) |
+| Container Groups (jobs as pods on OpenShift) | `container-groups/AAP-CONTAINER-GROUP-OPENSHIFT.md` |
 | OpenShift CRs / secrets | `openshift/AAP27/` (match your version) |
 | Refreshing inventories after a Red Hat update | `installer/maintainer/CONTAINERIZED_INVENTORY_CONTEXT.md` or `RPM_INVENTORY_CONTEXT.md` |
 
