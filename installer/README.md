@@ -24,7 +24,7 @@ installer/
         ├── vars-example.yml
         ├── extra-settings.md          # 2.6+ — *_extra_settings catalog
         ├── install-playbook-tasks.md  # generated from install.yml
-        ├── service-order.md           # stop/start/restart order + systemd coupling (all versions/methods)
+        ├── service-order.md           # stop/start/restart order, systemd coupling, aap-services.yml playbook
         └── README.md
 ```
 
@@ -63,7 +63,7 @@ Requires Python 3 and PyYAML. Install playbook extraction reads from `.installer
 |----------|-------------|
 | Inventory variables / host groups | `installer/AAP26/containerized/` |
 | Install playbook task order / roles | same folder — `install-playbook-tasks.md` |
-| Stop / start / restart order of services | same folder — `service-order.md` |
+| Stop / start / restart order of services (+ `aap-services.yml` playbook) | same folder — `service-order.md` |
 | Refreshing after a Red Hat update | `installer/maintainer/CONTAINERIZED_INVENTORY_CONTEXT.md` or `RPM_INVENTORY_CONTEXT.md` |
 
 Do **not** run Format Document on generated `install-playbook-tasks.md` files (table formatters inflate column width).
