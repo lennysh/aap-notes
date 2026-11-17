@@ -13,6 +13,7 @@ For OpenShift operator manifests, see [AAP 2.4 on OpenShift](../../openshift/AAP
 | [inventory-example](inventory-example) | `inventory` | Annotated inventory with example hosts and all installer variables |
 | [vars-example.yml](vars-example.yml) | — | YAML-only options (lists/dicts); use with `./setup.sh -e @vars.yml` |
 | [install-playbook-tasks.md](install-playbook-tasks.md) | `playbooks/install.yml` | Install playbook tasks in execution order (recursive role expansion) |
+| [service-order.md](service-order.md) | — | Stop / start / restart order for service wrappers; `PartOf=` coupling gotchas |
 
 Unlike the containerized installer, the RPM installer ships a **single** `inventory` template (no growth topology).
 

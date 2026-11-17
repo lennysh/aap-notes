@@ -26,6 +26,7 @@ Local Red Hat inputs (gitignored at repo root): [`.installer-dumps/`](.installer
 - **RPM inventories** — [2.4](installer/AAP24/rpm/README.md) · [2.5](installer/AAP25/rpm/README.md) · [2.6](installer/AAP26/rpm/README.md) (no RPM for 2.7)
 - **Containerized inventories** — [2.5](installer/AAP25/containerized/README.md) · [2.6](installer/AAP26/containerized/README.md) · [2.7](installer/AAP27/containerized/README.md)
 - **`*_extra_settings` catalogs** — [2.6](installer/AAP26/containerized/extra-settings.md) · [2.7](installer/AAP27/containerized/extra-settings.md)
+- **Service stop / start / restart order** — RPM [2.4](installer/AAP24/rpm/service-order.md) · [2.5](installer/AAP25/rpm/service-order.md) · [2.6](installer/AAP26/rpm/service-order.md) · containerized [2.5](installer/AAP25/containerized/service-order.md) · [2.6](installer/AAP26/containerized/service-order.md) · [2.7](installer/AAP27/containerized/service-order.md)
 - **UI design / HTML reports** — [`ui/README.md`](ui/README.md)
 
 ## Using with Cursor / other agents

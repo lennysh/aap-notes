@@ -24,6 +24,7 @@ installer/
         ├── vars-example.yml
         ├── extra-settings.md          # 2.6+ — *_extra_settings catalog
         ├── install-playbook-tasks.md  # generated from install.yml
+        ├── service-order.md           # stop/start/restart order + systemd coupling (all versions/methods)
         └── README.md
 ```
 
@@ -31,10 +32,10 @@ installer/
 
 | AAP | RPM | Containerized | OpenShift |
 |-----|-----|---------------|-----------|
-| 2.4 | [AAP24/rpm](AAP24/rpm/README.md) | — | [openshift/AAP24](../openshift/AAP24/README.md) |
-| 2.5 | [AAP25/rpm](AAP25/rpm/README.md) | [AAP25/containerized](AAP25/containerized/README.md) | [openshift/AAP25](../openshift/AAP25/README.md) |
-| 2.6 | [AAP26/rpm](AAP26/rpm/README.md) | [AAP26/containerized](AAP26/containerized/README.md) · [`extra-settings`](AAP26/containerized/extra-settings.md) | [openshift/AAP26](../openshift/AAP26/README.md) |
-| 2.7 | — | [AAP27/containerized](AAP27/containerized/README.md) · [`extra-settings`](AAP27/containerized/extra-settings.md) | [openshift/AAP27](../openshift/AAP27/README.md) |
+| 2.4 | [AAP24/rpm](AAP24/rpm/README.md) · [`service-order`](AAP24/rpm/service-order.md) | — | [openshift/AAP24](../openshift/AAP24/README.md) |
+| 2.5 | [AAP25/rpm](AAP25/rpm/README.md) · [`service-order`](AAP25/rpm/service-order.md) | [AAP25/containerized](AAP25/containerized/README.md) · [`service-order`](AAP25/containerized/service-order.md) | [openshift/AAP25](../openshift/AAP25/README.md) |
+| 2.6 | [AAP26/rpm](AAP26/rpm/README.md) · [`service-order`](AAP26/rpm/service-order.md) | [AAP26/containerized](AAP26/containerized/README.md) · [`extra-settings`](AAP26/containerized/extra-settings.md) · [`service-order`](AAP26/containerized/service-order.md) | [openshift/AAP26](../openshift/AAP26/README.md) |
+| 2.7 | — | [AAP27/containerized](AAP27/containerized/README.md) · [`extra-settings`](AAP27/containerized/extra-settings.md) · [`service-order`](AAP27/containerized/service-order.md) | [openshift/AAP27](../openshift/AAP27/README.md) |
 
 ## Scripts
 
@@ -62,6 +63,7 @@ Requires Python 3 and PyYAML. Install playbook extraction reads from `.installer
 |----------|-------------|
 | Inventory variables / host groups | `installer/AAP26/containerized/` |
 | Install playbook task order / roles | same folder — `install-playbook-tasks.md` |
+| Stop / start / restart order of services | same folder — `service-order.md` |
 | Refreshing after a Red Hat update | `installer/maintainer/CONTAINERIZED_INVENTORY_CONTEXT.md` or `RPM_INVENTORY_CONTEXT.md` |
 
 Do **not** run Format Document on generated `install-playbook-tasks.md` files (table formatters inflate column width).

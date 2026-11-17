@@ -14,6 +14,7 @@ For OpenShift operator manifests, see [AAP 2.5 on OpenShift](../../openshift/AAP
 | [inventory-growth-example](inventory-growth-example) | `inventory-growth` | Container growth — single host, managed `[database]`, `redis_mode=standalone` |
 | [vars-example.yml](vars-example.yml) | — | YAML-only options (lists/dicts); all commented; use with `-e @vars.yml` |
 | [install-playbook-tasks.md](install-playbook-tasks.md) | `playbooks/install.yml` | Install playbook tasks in execution order (recursive role expansion) |
+| [service-order.md](service-order.md) | — | Stop / start / restart order for `systemctl --user` units; `Requires=` coupling gotchas |
 
 ## Enabled settings (unchanged from upstream)
 
